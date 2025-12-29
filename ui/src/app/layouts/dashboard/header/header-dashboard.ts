@@ -1,8 +1,7 @@
-import { Component, input, output, signal } from "@angular/core";
-import { SidebarNavItem } from "../sidebar/nav-item/sidebar-nav-item";
+import { Component, input, output } from "@angular/core";
 import { ChangeDetectionStrategy } from "@angular/core";
-import { RouterLink, RouterLinkActive } from "@angular/router";
 import { HeaderUserPopover } from "./header-user-popover/header-user-popover";
+import { activeRouteTitle } from "../../../utils/active-route-title";
 
 @Component({
     selector: "header-dashboard",
@@ -14,7 +13,7 @@ import { HeaderUserPopover } from "./header-user-popover/header-user-popover";
             <div class="flex items-center gap-4">
                 <button
                     type="button"
-                    (click)="handleToggleSidebar()"
+                    (click)="toggleSidebar.emit()"
                     class="text-gray-600 hover:text-gray-900 hover:cursor-pointer border-2 border-red-300 p-2 rounded-lg transition-all focus:outline-none focus:ring-2 ring-red-100"
                     [class.bg-red-700]="sidebarOpen()"
                     [attr.aria-pressed]="sidebarOpen()"
@@ -46,7 +45,7 @@ import { HeaderUserPopover } from "./header-user-popover/header-user-popover";
                     </svg>
                 </button>
 
-                <h1 class="text-2xl font-semibold text-gray-800">Panel de Control</h1>
+                <h1 class="text-2xl font-semibold text-gray-800">{{ title() }}</h1>
             </div>
 
             <header-user-popover></header-user-popover>
@@ -55,11 +54,7 @@ import { HeaderUserPopover } from "./header-user-popover/header-user-popover";
     imports: [HeaderUserPopover],
 })
 export class HeaderDashboard {
-    toggleSidebar = output<void>();
-    sidebarOpen = input<boolean>(false);
-
-
-    handleToggleSidebar() {
-        this.toggleSidebar.emit();
-    }
+    readonly title = activeRouteTitle();
+    readonly sidebarOpen = input(false);
+    readonly toggleSidebar = output<void>();
 }

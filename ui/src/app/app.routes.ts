@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { DashboardLayout } from './layouts/dashboard/dashboard-layout';
 import { App } from './app';
+import { clientRoutes } from './features/companies/clients/companies-clients.routes';
 
 export const routes: Routes = [
     {
@@ -31,47 +32,57 @@ export const routes: Routes = [
             {
                 path: '',
                 redirectTo: 'services',
-                pathMatch: 'full'
+                pathMatch: 'full',
             },
             {
                 path: 'services',
-                component: App
+                component: App,
+                data: { title: 'Servicios' }
             },
             {
                 path: 'clients',
-                component: App
+                data: { title: 'Clientes' },
+                children: clientRoutes
             },
             {
                 path: 'transport-providers',
-                component: App
+                component: App,
+                data: { title: 'Transportistas' }
             },
             {
                 path: 'vehicles',
-                component: App
+                component: App,
+                data: { title: 'Vehículos' }
             },
             {
                 path: 'drivers',
-                component: App
+                component: App,
+                data: { title: 'Conductores' }
             },
             {
                 path: 'tariff',
-                component: App
+                component: App,
+                data: { title: 'Tarifas' }
             },
             {
                 path: 'history',
-                component: App
+                component: App,
+                data: { title: 'Historial de Servicios' }
             },
             {
                 path: 'invoices',
-                component: App
+                component: App,
+                data: { title: 'Facturas' }
             },
             {
                 path: 'profile',
-                component: App
+                component: App,
+                data: { title: 'Perfil' }
             },
             {
                 path: 'settings',
-                component: App
+                component: App,
+                data: { title: 'Configuración' }
             }
         ]
     }, {
