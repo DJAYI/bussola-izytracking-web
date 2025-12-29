@@ -4,6 +4,27 @@ import { App } from './app';
 
 export const routes: Routes = [
     {
+        path: 'home',
+        component: App
+    },
+    {
+        path: 'auth',
+        children: [
+            {
+                path: 'login',
+                component: App
+            },
+            {
+                path: 'register',
+                component: App
+            },
+            {
+                path: '2fa',
+                component: App
+            }
+        ]
+    },
+    {
         path: 'admin',
         component: DashboardLayout,
         children: [
@@ -43,7 +64,18 @@ export const routes: Routes = [
             {
                 path: 'invoices',
                 component: App
+            },
+            {
+                path: 'profile',
+                component: App
+            },
+            {
+                path: 'settings',
+                component: App
             }
         ]
+    }, {
+        path: '**',
+        redirectTo: 'admin'
     }
 ];

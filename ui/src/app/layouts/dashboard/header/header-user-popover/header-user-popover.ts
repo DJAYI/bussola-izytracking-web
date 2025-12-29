@@ -7,7 +7,7 @@ import { Component, signal } from "@angular/core";
                 <button
                     type="button"
                     (click)="handlePopoverToggle()"
-                    class="px-2 py-1 cursor-pointer rounded-lg border border-red-700 hover:border-red-400 hover:bg-red-700 hover:text-white transition-all flex items-center gap-2 text-gray-600" [class.bg-red-700]="popoverOpen()" [class.text-white]="popoverOpen()"
+                    class="px-2 py-1 cursor-pointer rounded-sm border border-red-700 hover:border-red-400 hover:bg-red-700 hover:text-white transition-all flex items-center gap-2 text-gray-600" [class.bg-red-700]="popoverOpen()" [class.text-white]="popoverOpen()"
                     aria-haspopup="menu"
                     [attr.aria-expanded]="popoverOpen()"
                     [attr.aria-controls]="menuId"
@@ -32,12 +32,12 @@ import { Component, signal } from "@angular/core";
                         <path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
                     </svg>
 
-                    <span class="font-semibold font-sans">Admin User</span>
+                    <span class="font-sans">Admin User</span>
                 </button>
 
                 @if (popoverOpen()) {
                     <aside
-                        class=" absolute bg-white shadow-lg rounded-lg border border-gray-100 top-10 right-0 w-fit"
+                        class="animate-blurred-fade-in animate-duration-250 absolute bg-white shadow-lg rounded-lg border border-gray-100 top-10 right-0 w-fit"
                         [id]="menuId"
                         role="menu"
                         aria-label="Menú de usuario"
