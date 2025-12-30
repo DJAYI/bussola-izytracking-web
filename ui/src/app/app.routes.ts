@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { DashboardLayout } from './layouts/dashboard/dashboard-layout';
 import { App } from './app';
 import { clientRoutes } from './features/companies/clients/companies-clients.routes';
+import { transportProvidersRoutes } from './features/companies/transport-providers/companies-transport-providers.routes';
+import { UserProfileComponent } from './features/identify/user-profile';
 
 export const routes: Routes = [
     {
@@ -46,8 +48,8 @@ export const routes: Routes = [
             },
             {
                 path: 'transport-providers',
-                component: App,
-                data: { title: 'Transportistas' }
+                data: { title: 'Transportistas' },
+                children: transportProvidersRoutes
             },
             {
                 path: 'vehicles',
@@ -76,7 +78,7 @@ export const routes: Routes = [
             },
             {
                 path: 'profile',
-                component: App,
+                component: UserProfileComponent,
                 data: { title: 'Perfil' }
             },
             {
