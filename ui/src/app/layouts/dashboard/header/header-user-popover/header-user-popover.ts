@@ -7,6 +7,7 @@ import { Component, signal } from "@angular/core";
                 <button
                     type="button"
                     (click)="handlePopoverToggle()"
+                    (keyup.escape)="closePopover()"
                     class="px-2 py-1 cursor-pointer rounded-sm border border-red-700 hover:border-red-400 hover:bg-red-700 hover:text-white transition-all flex items-center gap-2 text-gray-600" [class.bg-red-700]="popoverOpen()" [class.text-white]="popoverOpen()"
                     aria-haspopup="menu"
                     [attr.aria-expanded]="popoverOpen()"
@@ -41,7 +42,7 @@ import { Component, signal } from "@angular/core";
                         [id]="menuId"
                         role="menu"
                         aria-label="Menú de usuario"
-                        (keydown.escape)="closePopover()"
+                        (keyup.escape)="closePopover()"
                     >
                         <ul class="flex flex-col [&>li]:flex [&>li]:items-center">
                             <li>
