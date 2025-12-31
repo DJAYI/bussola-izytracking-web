@@ -52,7 +52,9 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
-        logoutUserUsecase.execute(response);
+        // Limpiar ambas cookies (access y refresh)
+        clearCookie(response, "access_token");
+        clearCookie(response, "refresh_token");
         return ResponseEntity.ok(ApiResponse.success("Logout exitoso"));
     }
 
@@ -68,14 +70,26 @@ public class AuthController {
 
     @GetMapping("/refresh")
     public ResponseEntity<ApiResponse<Void>> refreshSession(
-            @CookieValue(name = "access_token", required = false) String refreshToken,
+            @CookieValue(name = "refresh_token", required = false) String refreshToken,
             HttpServletResponse response) {
         if (refreshToken == null) {
+            clearCookie(response, "access_token");
+            clearCookie(response, "refresh_token");
             return ResponseEntity.status(401).body(ApiResponse.error("No autenticado"));
         }
 
         refreshSessionUsecase.execute(new RefreshSessionCommand(refreshToken), response);
 
         return ResponseEntity.ok(ApiResponse.success("Sesión refrescada exitosamente"));
+    }
+
+    private void clearCookie(HttpServletResponse response, String name) {
+        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie(name, null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        cookie.setAttribute("SameSite", "Strict");
+        response.addCookie(cookie);
     }
 }

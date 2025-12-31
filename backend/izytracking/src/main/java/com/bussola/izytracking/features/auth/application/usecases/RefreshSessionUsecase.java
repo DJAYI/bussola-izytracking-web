@@ -1,5 +1,6 @@
 package com.bussola.izytracking.features.auth.application.usecases;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.bussola.izytracking.config.security.JwtService;
@@ -10,66 +11,75 @@ import com.bussola.izytracking.features.auth.domain.usecases.commands.RefreshSes
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-// import lombok.Value; // Eliminado, no se usa aquí
 
 @Service
 public class RefreshSessionUsecase {
-    private final LogoutUserUsecase logoutUserUsecase;
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
-    @org.springframework.beans.factory.annotation.Value("${jwt.cookie-name}")
-    private String cookieName;
+    @Value("${jwt.access-cookie-name:access_token}")
+    private String accessCookieName;
 
-    @org.springframework.beans.factory.annotation.Value("${jwt.refresh-token-expiration}")
-    private long refreshTokenExpirationMillis;
+    @Value("${jwt.refresh-cookie-name:refresh_token}")
+    private String refreshCookieName;
 
-    @org.springframework.beans.factory.annotation.Value("${jwt.access-token-expiration}")
+    @Value("${jwt.access-token-expiration:3600000}")
     private long accessTokenExpirationMillis;
 
-    public RefreshSessionUsecase(LogoutUserUsecase logoutUserUsecase, JwtService jwtService,
-            UserRepository userRepository) {
-        this.logoutUserUsecase = logoutUserUsecase;
+    @Value("${jwt.refresh-token-expiration:604800000}")
+    private long refreshTokenExpirationMillis;
+
+    public RefreshSessionUsecase(JwtService jwtService, UserRepository userRepository) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
     }
 
+    /**
+     * Refresca la sesión usando el refresh token. Si el refresh token es válido y
+     * no ha expirado,
+     * genera un nuevo access token y un nuevo refresh token (rotación), y los setea
+     * en cookies.
+     * Si el refresh token es inválido o expirado, limpia ambas cookies.
+     */
     public void execute(RefreshSessionCommand command, HttpServletResponse response) {
-        // Invalida la sesión actual
-        logoutUserUsecase.execute(response);
-
-        // Aquí podrías agregar lógica adicional para crear una nueva sesión
-        // utilizando el refreshToken proporcionado en el comando.
-
-        boolean isAccessExpired = jwtService.isTokenExpired(command.refreshToken());
-
-        if (!isAccessExpired) {
-            // Lógica para manejar el caso cuando el token de acceso aún es válido
-            // Podrías simplemente devolver el mismo token o realizar alguna otra acción.
-
-            Cookie cookie = new Cookie(cookieName, command.refreshToken());
-            cookie.setHttpOnly(true);
-            cookie.setSecure(true);
-            cookie.setPath("/");
-
-            // Convertir milisegundos a segundos para setMaxAge
-            cookie.setMaxAge((int) (accessTokenExpirationMillis / 1000));
-
-            response.addCookie(cookie);
+        String refreshToken = command.refreshToken();
+        if (refreshToken == null || !jwtService.isTokenValid(refreshToken)) {
+            // Token inválido o expirado: limpiar cookies
+            clearCookie(response, accessCookieName);
+            clearCookie(response, refreshCookieName);
+            return;
         }
 
-        User user = userRepository.findById(jwtService.extractUserId(command.refreshToken()))
+        // Extraer usuario del refresh token
+        User user = userRepository.findById(jwtService.extractUserId(refreshToken))
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
 
-        String refreshToken = jwtService.generateRefreshToken(user);
+        // Rotar refresh token (opcional, pero recomendado)
+        String newRefreshToken = jwtService.generateRefreshToken(user);
+        String newAccessToken = jwtService.generateAccessToken(user);
 
-        Cookie cookie = new Cookie(cookieName, refreshToken);
+        // Setear cookies
+        setCookie(response, accessCookieName, newAccessToken, accessTokenExpirationMillis);
+        setCookie(response, refreshCookieName, newRefreshToken, refreshTokenExpirationMillis);
+    }
+
+    private void setCookie(HttpServletResponse response, String name, String value, long maxAgeMillis) {
+        Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
+        cookie.setMaxAge((int) (maxAgeMillis / 1000));
+        cookie.setAttribute("SameSite", "Strict");
+        response.addCookie(cookie);
+    }
 
-        cookie.setMaxAge((int) (refreshTokenExpirationMillis / 1000));
-
+    private void clearCookie(HttpServletResponse response, String name) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        cookie.setAttribute("SameSite", "Strict");
         response.addCookie(cookie);
     }
 }

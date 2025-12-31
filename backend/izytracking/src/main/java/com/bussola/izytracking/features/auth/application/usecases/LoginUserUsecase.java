@@ -24,8 +24,17 @@ public class LoginUserUsecase {
     private final AuthenticateUserUsecase authenticateUserUsecase;
     private final JwtService jwtService;
 
-    @Value("${jwt.cookie-name}")
-    private String cookieName;
+    @Value("${jwt.access-cookie-name:access_token}")
+    private String accessCookieName;
+
+    @Value("${jwt.refresh-cookie-name:refresh_token}")
+    private String refreshCookieName;
+
+    @Value("${jwt.access-token-expiration:3600000}")
+    private long accessTokenExpirationMillis;
+
+    @Value("${jwt.refresh-token-expiration:604800000}")
+    private long refreshTokenExpirationMillis;
 
     public LoginUserUsecase(UserRepository userRepository, AuthenticateUserUsecase authenticateUserUsecase,
             JwtService jwtService) {
@@ -49,20 +58,27 @@ public class LoginUserUsecase {
                 user.getDisplayName(),
                 user.getRole().name());
 
-        // Aquí podrías agregar la lógica para generar y establecer el token JWT en una
-        // cookie si es necesario
+        // Generar tokens
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
 
-        long defaultExpiration = 60 * 60 * 1000L; // 1 hour default
+        // Setear access token cookie
+        Cookie accessCookie = new Cookie(accessCookieName, accessToken);
+        accessCookie.setHttpOnly(true);
+        accessCookie.setSecure(true);
+        accessCookie.setPath("/");
+        accessCookie.setMaxAge((int) (accessTokenExpirationMillis / 1000));
+        accessCookie.setAttribute("SameSite", "Strict");
+        response.addCookie(accessCookie);
 
-        Cookie cookie = new Cookie(cookieName, jwtService.generateAccessToken(user));
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge((int) (defaultExpiration / 1000)); // Convert milliseconds to seconds
-        response.addCookie(cookie);
-
-        cookie.setAttribute("SameSite", "Lax"); // O "Lax" si estás sin HTTPS
-        response.addCookie(cookie);
+        // Setear refresh token cookie
+        Cookie refreshCookie = new Cookie(refreshCookieName, refreshToken);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge((int) (refreshTokenExpirationMillis / 1000));
+        refreshCookie.setAttribute("SameSite", "Strict");
+        response.addCookie(refreshCookie);
 
         return ApiResponse.success("User logged in successfully", loginResponse);
     }
