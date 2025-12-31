@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: izytracking
+
+  datasource:
+    url: jdbc:h2:mem:izytrackingdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        "[format_sql]": true
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-here-change-in-production-minimum-32-chars}
+  access-token-expiration: 3600000 # 1 hour in milliseconds
+  refresh-token-expiration: 604800000 # 7 days in milliseconds
+  cookie-name: access_token
