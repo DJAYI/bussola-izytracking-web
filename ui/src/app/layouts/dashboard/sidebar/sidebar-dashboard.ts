@@ -1,6 +1,11 @@
 import { Component, input } from "@angular/core";
 import { SidebarNavItem } from "./nav-item/sidebar-nav-item";
-import { link } from "fs";
+
+type SidebarLink = {
+    link: string;
+    name: string;
+    role: string[];
+}
 
 @Component({
     selector: 'sidebar-dashboard',
@@ -33,15 +38,19 @@ import { link } from "fs";
     imports: [SidebarNavItem],
 })
 export class SidebarDashboard {
-    links = [
-        { link: 'clients', name: 'Clientes' },
-        { link: 'transport-providers', name: 'Proveedores de Transporte' },
-        { link: 'services', name: 'Servicios' },
-        { link: 'vehicles', name: 'Vehículos' },
-        { link: 'drivers', name: 'Conductores' },
-        { link: 'tariff', name: 'Tarifario' },
-        { link: 'history', name: 'Historial' },
-        { link: 'invoices', name: 'Facturas' },
+    links: SidebarLink[] = [
+        { link: 'clients', name: 'Clientes', role: ['ADMIN'] },
+        { link: 'transport-providers', name: 'Proveedores de Transporte', role: ['ADMIN'] },
+        { link: 'services', name: 'Servicios', role: ['AGENCY', 'TRANSPORT_PROVIDER'] },
+        { link: 'vehicles', name: 'Vehículos', role: ['TRANSPORT_PROVIDER'] },
+        { link: 'drivers', name: 'Conductores', role: ['TRANSPORT_PROVIDER'] },
+        { link: 'tariff', name: 'Tarifario', role: ['TRANSPORT_PROVIDER'] },
+        { link: 'history', name: 'Historial', role: ['AGENCY', 'TRANSPORT_PROVIDER'] },
+        { link: 'invoices', name: 'Facturas', role: ['AGENCY', 'TRANSPORT_PROVIDER'] },
     ]
     open = input.required<boolean>();
+
+    constructor() {
+        this.links = this.links.filter(link => link.role.includes('ADMIN'));
+    }
 }
