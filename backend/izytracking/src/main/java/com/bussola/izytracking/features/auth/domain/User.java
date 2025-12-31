@@ -4,12 +4,15 @@ import java.util.UUID;
 
 import com.bussola.izytracking.features.auth.domain.enums.UserRole;
 import com.bussola.izytracking.features.auth.domain.enums.UserStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class User {
 
     private UUID id;
     private String displayName;
     private String email;
+
+    @JsonIgnore
     private String passwordHash;
 
     private UserRole role;
