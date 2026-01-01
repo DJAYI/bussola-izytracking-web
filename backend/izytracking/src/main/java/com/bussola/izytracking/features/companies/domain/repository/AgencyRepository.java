@@ -21,5 +21,7 @@ public interface AgencyRepository {
 
     Optional<Agency> findByLegalDocumentation(String documentNumber, DocumentType documentType);
 
+    Optional<Agency> findByUserId(UUID userId);
+
     Page<Agency> findAll(int page, int size, String sortBy, String sortDirection);
 }

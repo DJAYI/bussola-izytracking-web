@@ -12,5 +12,7 @@ public interface JpaSpringAgencySupport extends JpaRepository<JpaAgencyEntity, U
 
     boolean existsByUserId(UUID userId);
 
+    Optional<JpaAgencyEntity> findByUserId(UUID userId);
+
     Optional<JpaAgencyEntity> findByDocumentNumberAndDocumentType(String documentNumber, DocumentType documentType);
 }

@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,15 +16,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bussola.izytracking.config.api.dto.ApiResponse;
+import com.bussola.izytracking.features.auth.domain.entities.DomainUserDetails;
 import com.bussola.izytracking.features.companies.application.dto.AgencyResponse;
 import com.bussola.izytracking.features.companies.application.dto.PaginatedResponse;
 import com.bussola.izytracking.features.companies.application.dto.RegisterAgencyResponse;
+import com.bussola.izytracking.features.companies.application.usecases.GetMyAgencyProfileUsecase;
 import com.bussola.izytracking.features.companies.application.usecases.ListAgenciesUsecase;
 import com.bussola.izytracking.features.companies.application.usecases.ModifyAgencyInformationUsecase;
 import com.bussola.izytracking.features.companies.application.usecases.RegisterAgencyUsecase;
 import com.bussola.izytracking.features.companies.application.usecases.ViewAgencyProfileUsecase;
 import com.bussola.izytracking.features.companies.domain.usecases.agencies.commands.ModifyAgencyInformationCommand;
 import com.bussola.izytracking.features.companies.domain.usecases.agencies.commands.RegisterAgencyCommand;
+import com.bussola.izytracking.features.companies.domain.usecases.agencies.queries.GetMyAgencyProfileQuery;
 import com.bussola.izytracking.features.companies.domain.usecases.agencies.queries.ListAgenciesQuery;
 import com.bussola.izytracking.features.companies.domain.usecases.agencies.queries.ViewAgencyProfileQuery;
 
@@ -36,19 +40,23 @@ public class AgencyController {
     private final ViewAgencyProfileUsecase viewAgencyProfileUsecase;
     private final ModifyAgencyInformationUsecase modifyAgencyInformationUsecase;
     private final ListAgenciesUsecase listAgenciesUsecase;
+    private final GetMyAgencyProfileUsecase getMyAgencyProfileUsecase;
 
     public AgencyController(
             RegisterAgencyUsecase registerAgencyUsecase,
             ViewAgencyProfileUsecase viewAgencyProfileUsecase,
             ModifyAgencyInformationUsecase modifyAgencyInformationUsecase,
-            ListAgenciesUsecase listAgenciesUsecase) {
+            ListAgenciesUsecase listAgenciesUsecase,
+            GetMyAgencyProfileUsecase getMyAgencyProfileUsecase) {
         this.registerAgencyUsecase = registerAgencyUsecase;
         this.viewAgencyProfileUsecase = viewAgencyProfileUsecase;
         this.modifyAgencyInformationUsecase = modifyAgencyInformationUsecase;
         this.listAgenciesUsecase = listAgenciesUsecase;
+        this.getMyAgencyProfileUsecase = getMyAgencyProfileUsecase;
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<RegisterAgencyResponse>> register(
             @RequestBody RegisterAgencyCommand command) {
         RegisterAgencyResponse response = registerAgencyUsecase.execute(command);
@@ -58,6 +66,7 @@ public class AgencyController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<PaginatedResponse<AgencyResponse>>> list(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -68,13 +77,24 @@ public class AgencyController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('AGENCY')")
+    public ResponseEntity<ApiResponse<AgencyResponse>> getMyProfile(
+            @AuthenticationPrincipal DomainUserDetails userDetails) {
+        AgencyResponse response = getMyAgencyProfileUsecase.execute(
+                new GetMyAgencyProfileQuery(userDetails.getUser().getId()));
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AgencyResponse>> getProfile(@PathVariable UUID id) {
         AgencyResponse response = viewAgencyProfileUsecase.execute(new ViewAgencyProfileQuery(id));
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AgencyResponse>> update(
             @PathVariable UUID id,
             @RequestBody ModifyAgencyInformationCommand command) {

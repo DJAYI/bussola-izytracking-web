@@ -30,11 +30,11 @@ public class JpaAgencyEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private UUID userId;
 
     // Legal documentation
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String documentNumber;
 
     @Enumerated(EnumType.STRING)
@@ -62,7 +62,10 @@ public class JpaAgencyEntity {
     private String country;
 
     // Contact information
+    @Column(nullable = false, unique = true)
     private String contactEmail;
+    @Column(unique = true)
     private String phoneNumber;
+    @Column(unique = true)
     private String mobileNumber;
 }

@@ -63,6 +63,12 @@ public class JpaAgencyRepository implements AgencyRepository {
     }
 
     @Override
+    public Optional<Agency> findByUserId(UUID userId) {
+        return jpaSpringAgencySupport.findByUserId(userId)
+                .map(this::toDomain);
+    }
+
+    @Override
     public Page<Agency> findAll(int page, int size, String sortBy, String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
