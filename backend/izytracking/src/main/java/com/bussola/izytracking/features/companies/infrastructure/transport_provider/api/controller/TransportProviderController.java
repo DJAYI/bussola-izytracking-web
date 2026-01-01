@@ -18,93 +18,94 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bussola.izytracking.config.api.dto.ApiResponse;
 import com.bussola.izytracking.config.api.dto.PaginatedResponse;
 import com.bussola.izytracking.features.auth.domain.entities.DomainUserDetails;
-import com.bussola.izytracking.features.companies.application.agency.dto.AgencyResponse;
-import com.bussola.izytracking.features.companies.application.agency.dto.RegisterAgencyResponse;
-import com.bussola.izytracking.features.companies.application.agency.usecases.GetMyAgencyProfileUsecase;
-import com.bussola.izytracking.features.companies.application.agency.usecases.ListAgenciesUsecase;
-import com.bussola.izytracking.features.companies.application.agency.usecases.ModifyAgencyInformationUsecase;
-import com.bussola.izytracking.features.companies.application.agency.usecases.RegisterAgencyUsecase;
-import com.bussola.izytracking.features.companies.application.agency.usecases.ViewAgencyProfileUsecase;
-import com.bussola.izytracking.features.companies.domain.usecases.agencies.commands.ModifyAgencyInformationCommand;
-import com.bussola.izytracking.features.companies.domain.usecases.agencies.commands.RegisterAgencyCommand;
-import com.bussola.izytracking.features.companies.domain.usecases.agencies.queries.GetMyAgencyProfileQuery;
-import com.bussola.izytracking.features.companies.domain.usecases.agencies.queries.ListAgenciesQuery;
-import com.bussola.izytracking.features.companies.domain.usecases.agencies.queries.ViewAgencyProfileQuery;
+import com.bussola.izytracking.features.companies.application.transport_provider.dto.TransportProviderResponse;
+import com.bussola.izytracking.features.companies.application.transport_provider.dto.RegisterTransportProviderResponse;
+import com.bussola.izytracking.features.companies.application.transport_provider.usecases.GetMyTransportProviderProfileUsecase;
+import com.bussola.izytracking.features.companies.application.transport_provider.usecases.ListTransportProviderUsecase;
+import com.bussola.izytracking.features.companies.application.transport_provider.usecases.ModifyTransportProviderInformationUsecase;
+import com.bussola.izytracking.features.companies.application.transport_provider.usecases.RegisterTransportProviderUsecase;
+import com.bussola.izytracking.features.companies.application.transport_provider.usecases.ViewTransportProviderProfileUsecase;
+import com.bussola.izytracking.features.companies.domain.usecases.transport_providers.commands.ModifyTransportProviderInformationCommand;
+import com.bussola.izytracking.features.companies.domain.usecases.transport_providers.commands.RegisterTransportProviderCommand;
+import com.bussola.izytracking.features.companies.domain.usecases.transport_providers.queries.GetMyTransportProviderProfileQuery;
+import com.bussola.izytracking.features.companies.domain.usecases.transport_providers.queries.ListTransportProvidersQuery;
+import com.bussola.izytracking.features.companies.domain.usecases.transport_providers.queries.ViewTransportProviderProfileQuery;
 
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
-@RequestMapping("/api/agencies")
+@RequestMapping("/api/transport-providers")
 public class TransportProviderController {
 
-    private final RegisterAgencyUsecase registerAgencyUsecase;
-    private final ViewAgencyProfileUsecase viewAgencyProfileUsecase;
-    private final ModifyAgencyInformationUsecase modifyAgencyInformationUsecase;
-    private final ListAgenciesUsecase listAgenciesUsecase;
-    private final GetMyAgencyProfileUsecase getMyAgencyProfileUsecase;
+    private final RegisterTransportProviderUsecase registerTransportProviderUsecase;
+    private final ViewTransportProviderProfileUsecase viewTransportProviderProfileUsecase;
+    private final ModifyTransportProviderInformationUsecase modifyTransportProviderInformationUsecase;
+    private final ListTransportProviderUsecase listTransportProviderUsecase;
+    private final GetMyTransportProviderProfileUsecase getMyTransportProviderProfileUsecase;
 
     public TransportProviderController(
-            RegisterAgencyUsecase registerAgencyUsecase,
-            ViewAgencyProfileUsecase viewAgencyProfileUsecase,
-            ModifyAgencyInformationUsecase modifyAgencyInformationUsecase,
-            ListAgenciesUsecase listAgenciesUsecase,
-            GetMyAgencyProfileUsecase getMyAgencyProfileUsecase) {
-        this.registerAgencyUsecase = registerAgencyUsecase;
-        this.viewAgencyProfileUsecase = viewAgencyProfileUsecase;
-        this.modifyAgencyInformationUsecase = modifyAgencyInformationUsecase;
-        this.listAgenciesUsecase = listAgenciesUsecase;
-        this.getMyAgencyProfileUsecase = getMyAgencyProfileUsecase;
+            RegisterTransportProviderUsecase registerTransportProviderUsecase,
+            ViewTransportProviderProfileUsecase viewTransportProviderProfileUsecase,
+            ModifyTransportProviderInformationUsecase modifyTransportProviderInformationUsecase,
+            ListTransportProviderUsecase listTransportProviderUsecase,
+            GetMyTransportProviderProfileUsecase getMyTransportProviderProfileUsecase) {
+        this.registerTransportProviderUsecase = registerTransportProviderUsecase;
+        this.viewTransportProviderProfileUsecase = viewTransportProviderProfileUsecase;
+        this.modifyTransportProviderInformationUsecase = modifyTransportProviderInformationUsecase;
+        this.listTransportProviderUsecase = listTransportProviderUsecase;
+        this.getMyTransportProviderProfileUsecase = getMyTransportProviderProfileUsecase;
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<RegisterAgencyResponse>> register(
-            @RequestBody RegisterAgencyCommand command) {
-        RegisterAgencyResponse response = registerAgencyUsecase.execute(command);
+    public ResponseEntity<ApiResponse<RegisterTransportProviderResponse>> register(
+            @RequestBody RegisterTransportProviderCommand command) {
+        RegisterTransportProviderResponse response = registerTransportProviderUsecase.execute(command);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Agency registered successfully", response));
+                .body(ApiResponse.success("TransportProvider registered successfully", response));
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PaginatedResponse<AgencyResponse>>> list(
+    public ResponseEntity<ApiResponse<PaginatedResponse<TransportProviderResponse>>> list(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection) {
-        ListAgenciesQuery query = new ListAgenciesQuery(page, size, sortBy, sortDirection);
-        PaginatedResponse<AgencyResponse> response = listAgenciesUsecase.execute(query);
+        ListTransportProvidersQuery query = new ListTransportProvidersQuery(page, size, sortBy, sortDirection);
+        PaginatedResponse<TransportProviderResponse> response = listTransportProviderUsecase.execute(query);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('AGENCY')")
-    public ResponseEntity<ApiResponse<AgencyResponse>> getMyProfile(
+    public ResponseEntity<ApiResponse<TransportProviderResponse>> getMyProfile(
             @AuthenticationPrincipal DomainUserDetails userDetails) {
-        AgencyResponse response = getMyAgencyProfileUsecase.execute(
-                new GetMyAgencyProfileQuery(userDetails.getUser().getId()));
+        TransportProviderResponse response = getMyTransportProviderProfileUsecase.execute(
+                new GetMyTransportProviderProfileQuery(userDetails.getUser().getId()));
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<AgencyResponse>> getProfile(@PathVariable UUID id) {
-        AgencyResponse response = viewAgencyProfileUsecase.execute(new ViewAgencyProfileQuery(id));
+    public ResponseEntity<ApiResponse<TransportProviderResponse>> getProfile(@PathVariable UUID id) {
+        TransportProviderResponse response = viewTransportProviderProfileUsecase
+                .execute(new ViewTransportProviderProfileQuery(id));
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<AgencyResponse>> update(
+    public ResponseEntity<ApiResponse<TransportProviderResponse>> update(
             @PathVariable UUID id,
-            @RequestBody ModifyAgencyInformationCommand command) {
+            @RequestBody ModifyTransportProviderInformationCommand command) {
         // Ensure the ID from path matches the command
-        ModifyAgencyInformationCommand commandWithId = new ModifyAgencyInformationCommand(
+        ModifyTransportProviderInformationCommand commandWithId = new ModifyTransportProviderInformationCommand(
                 id,
                 command.addressDetails(),
                 command.contactInformation());
 
-        AgencyResponse response = modifyAgencyInformationUsecase.execute(commandWithId);
-        return ResponseEntity.ok(ApiResponse.success("Agency updated successfully", response));
+        TransportProviderResponse response = modifyTransportProviderInformationUsecase.execute(commandWithId);
+        return ResponseEntity.ok(ApiResponse.success("Transport provider updated successfully", response));
     }
 }
