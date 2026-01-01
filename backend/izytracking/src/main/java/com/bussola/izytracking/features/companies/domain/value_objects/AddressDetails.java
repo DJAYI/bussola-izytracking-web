@@ -65,4 +65,26 @@ public class AddressDetails {
             throw new IllegalArgumentException(message);
         }
     }
+
+    // Getters
+
+    public String getStreet() {
+        return street;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public String getCountry() {
+        return country;
+    }
 }

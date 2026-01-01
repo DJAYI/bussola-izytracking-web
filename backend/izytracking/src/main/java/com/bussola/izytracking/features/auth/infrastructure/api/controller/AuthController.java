@@ -5,7 +5,6 @@ import com.bussola.izytracking.features.auth.application.dto.LoginResponse;
 import com.bussola.izytracking.features.auth.application.dto.RefreshSessionResult;
 import com.bussola.izytracking.features.auth.application.dto.UserResponse;
 import com.bussola.izytracking.features.auth.application.usecases.LoginUserUsecase;
-import com.bussola.izytracking.features.auth.application.usecases.LogoutUserUsecase;
 import com.bussola.izytracking.features.auth.application.usecases.RefreshSessionUsecase;
 import com.bussola.izytracking.features.auth.application.usecases.GetCurrentSessionUsecase;
 import com.bussola.izytracking.features.auth.domain.entities.User;
@@ -44,7 +43,6 @@ public class AuthController {
 
     public AuthController(
             LoginUserUsecase loginUserUsecase,
-            LogoutUserUsecase logoutUserUsecase,
             GetCurrentSessionUsecase getCurrentSessionUsecase,
             RefreshSessionUsecase refreshSessionUsecase,
             @Value("${jwt.cookie-name:access_token}") String cookieName) {

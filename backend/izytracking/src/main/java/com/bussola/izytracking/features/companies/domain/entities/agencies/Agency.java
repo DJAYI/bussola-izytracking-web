@@ -75,4 +75,48 @@ public class Agency {
     public UUID getUserId() {
         return userId;
     }
+
+    /**
+     * Private constructor for reconstitution from persistence
+     */
+    private Agency(
+            UUID id,
+            LegalDocumentationDetails legalDocumentationDetails,
+            AddressDetails addressDetails,
+            ContactInformation contactInformation,
+            UUID userId) {
+        this.id = id;
+        this.legalDocumentationDetails = legalDocumentationDetails;
+        this.addressDetails = addressDetails;
+        this.contactInformation = contactInformation;
+        this.userId = userId;
+        validate();
+    }
+
+    /**
+     * Factory method for reconstituting from persistence
+     */
+    public static Agency reconstitute(
+            UUID id,
+            LegalDocumentationDetails legalDocumentationDetails,
+            AddressDetails addressDetails,
+            ContactInformation contactInformation,
+            UUID userId) {
+        return new Agency(id, legalDocumentationDetails, addressDetails, contactInformation, userId);
+    }
+
+    /**
+     * Creates a new Agency instance with updated address and contact information.
+     * Legal documentation and user association remain immutable.
+     */
+    public Agency withUpdatedInformation(
+            AddressDetails newAddressDetails,
+            ContactInformation newContactInformation) {
+        return new Agency(
+                this.id,
+                this.legalDocumentationDetails,
+                newAddressDetails != null ? newAddressDetails : this.addressDetails,
+                newContactInformation != null ? newContactInformation : this.contactInformation,
+                this.userId);
+    }
 }
