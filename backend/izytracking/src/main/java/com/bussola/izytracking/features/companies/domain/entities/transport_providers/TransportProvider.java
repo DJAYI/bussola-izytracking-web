@@ -1,4 +1,3 @@
-
 package com.bussola.izytracking.features.companies.domain.entities.transport_providers;
 
 import java.util.UUID;
@@ -8,7 +7,6 @@ import com.bussola.izytracking.features.companies.domain.value_objects.ContactIn
 import com.bussola.izytracking.features.companies.domain.value_objects.LegalDocumentationDetails;
 
 public class TransportProvider {
-
     private final UUID id;
     private final LegalDocumentationDetails legalDocumentationDetails;
     private final AddressDetails addressDetails;
@@ -78,4 +76,48 @@ public class TransportProvider {
         return userId;
     }
 
+    /**
+     * Private constructor for reconstitution from persistence
+     */
+    private TransportProvider(
+            UUID id,
+            LegalDocumentationDetails legalDocumentationDetails,
+            AddressDetails addressDetails,
+            ContactInformation contactInformation,
+            UUID userId) {
+        this.id = id;
+        this.legalDocumentationDetails = legalDocumentationDetails;
+        this.addressDetails = addressDetails;
+        this.contactInformation = contactInformation;
+        this.userId = userId;
+        validate();
+    }
+
+    /**
+     * Factory method for reconstituting from persistence
+     */
+    public static TransportProvider reconstitute(
+            UUID id,
+            LegalDocumentationDetails legalDocumentationDetails,
+            AddressDetails addressDetails,
+            ContactInformation contactInformation,
+            UUID userId) {
+        return new TransportProvider(id, legalDocumentationDetails, addressDetails, contactInformation, userId);
+    }
+
+    /**
+     * Creates a new TransportProvider instance with updated address and contact
+     * information.
+     * Legal documentation and user association remain immutable.
+     */
+    public TransportProvider withUpdatedInformation(
+            AddressDetails newAddressDetails,
+            ContactInformation newContactInformation) {
+        return new TransportProvider(
+                this.id,
+                this.legalDocumentationDetails,
+                newAddressDetails != null ? newAddressDetails : this.addressDetails,
+                newContactInformation != null ? newContactInformation : this.contactInformation,
+                this.userId);
+    }
 }
