@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.bussola.izytracking.config.security.JwtService;
-import com.bussola.izytracking.features.auth.domain.User;
+import com.bussola.izytracking.features.auth.domain.entities.User;
 import com.bussola.izytracking.features.auth.domain.exceptions.InvalidTokenException;
 import com.bussola.izytracking.features.auth.domain.exceptions.UserNotFoundException;
 import com.bussola.izytracking.features.auth.domain.repository.UserRepository;

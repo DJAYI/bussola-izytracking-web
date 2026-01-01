@@ -1,6 +1,6 @@
 package com.bussola.izytracking.config.dev;
 
-import com.bussola.izytracking.features.auth.domain.User;
+import com.bussola.izytracking.features.auth.domain.entities.User;
 import com.bussola.izytracking.features.auth.domain.enums.UserRole;
 import com.bussola.izytracking.features.auth.domain.enums.UserStatus;
 import com.bussola.izytracking.features.auth.domain.repository.UserRepository;

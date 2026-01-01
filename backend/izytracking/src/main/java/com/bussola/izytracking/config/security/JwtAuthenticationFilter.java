@@ -12,21 +12,22 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.bussola.izytracking.features.auth.domain.entities.DomainUserDetails;
+import com.bussola.izytracking.features.auth.infrastructure.CustomUserDetailsService;
+
 import java.io.IOException;
 import java.util.Arrays;
-
-import com.bussola.izytracking.features.auth.application.usecases.GetUserByEmailUsecase;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final GetUserByEmailUsecase getUserByEmailUsecase;
+    private final CustomUserDetailsService customUserDetailsService;
     private final String cookieName;
 
-    public JwtAuthenticationFilter(JwtService jwtService, GetUserByEmailUsecase getUserByEmailUsecase,
+    public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService customUserDetailsService,
             String cookieName) {
         this.jwtService = jwtService;
-        this.getUserByEmailUsecase = getUserByEmailUsecase;
+        this.customUserDetailsService = customUserDetailsService;
         this.cookieName = cookieName;
     }
 
@@ -36,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = extractJwtFromCookie(request);
         if (StringUtils.hasText(jwt) && jwtService.isTokenValid(jwt)) {
             String email = jwtService.extractEmail(jwt);
-            UserDetails userDetails = getUserByEmailUsecase.execute(email);
+            DomainUserDetails userDetails = (DomainUserDetails) customUserDetailsService.loadUserByUsername(email);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
                     null, userDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

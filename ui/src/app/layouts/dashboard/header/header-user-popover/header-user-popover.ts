@@ -36,7 +36,6 @@ import { Router, RouterLink } from "@angular/router";
 
                     <span class="font-sans">Admin User</span>
 
-                    <!-- volvot left -->
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"

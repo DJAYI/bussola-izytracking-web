@@ -1,7 +1,5 @@
 package com.bussola.izytracking.config.security;
 
-import com.bussola.izytracking.features.auth.application.usecases.GetUserByEmailUsecase;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.bussola.izytracking.features.auth.infrastructure.CustomUserDetailsService;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -25,7 +25,7 @@ public class SecurityConfig {
     @Autowired
     private JwtService jwtService;
     @Autowired
-    private GetUserByEmailUsecase getUserByEmailUsecase;
+    private CustomUserDetailsService getUserByEmailUsecase;
     @Value("${jwt.cookie-name:IZYTRACKING_ACCESS_TOKEN}")
     private String cookieName;
 

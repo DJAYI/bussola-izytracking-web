@@ -5,7 +5,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
-import com.bussola.izytracking.features.auth.domain.User;
+import com.bussola.izytracking.features.auth.domain.entities.User;
+import com.bussola.izytracking.features.auth.domain.enums.UserStatus;
 import com.bussola.izytracking.features.auth.domain.repository.UserRepository;
 import com.bussola.izytracking.features.auth.infrastructure.repository.jpa.entities.JpaUserEntity;
 
@@ -67,5 +68,13 @@ public class JpaUserRepository implements UserRepository {
         user.setRole(entity.getRole());
         user.setStatus(entity.getStatus());
         return user;
+    }
+
+    @Override
+    public void desactivateUser(UUID id) {
+        jpaSpringUserSupport.findById(id).ifPresent(entity -> {
+            entity.setStatus(UserStatus.INACTIVE);
+            jpaSpringUserSupport.save(entity);
+        });
     }
 }

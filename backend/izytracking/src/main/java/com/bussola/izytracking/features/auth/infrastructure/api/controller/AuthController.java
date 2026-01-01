@@ -2,19 +2,27 @@ package com.bussola.izytracking.features.auth.infrastructure.api.controller;
 
 import com.bussola.izytracking.config.api.dto.ApiResponse;
 import com.bussola.izytracking.features.auth.application.dto.LoginResponse;
+import com.bussola.izytracking.features.auth.application.dto.RefreshSessionResult;
+import com.bussola.izytracking.features.auth.application.dto.UserResponse;
 import com.bussola.izytracking.features.auth.application.usecases.LoginUserUsecase;
 import com.bussola.izytracking.features.auth.application.usecases.LogoutUserUsecase;
 import com.bussola.izytracking.features.auth.application.usecases.RefreshSessionUsecase;
 import com.bussola.izytracking.features.auth.application.usecases.GetCurrentSessionUsecase;
+import com.bussola.izytracking.features.auth.domain.entities.User;
 import com.bussola.izytracking.features.auth.domain.usecases.commands.LoginUserCommand;
 import com.bussola.izytracking.features.auth.domain.usecases.commands.RefreshSessionCommand;
 import com.bussola.izytracking.features.auth.domain.usecases.queries.GetCurrentSessionQuery;
-import com.bussola.izytracking.features.auth.domain.User;
+
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
@@ -22,9 +30,14 @@ import jakarta.servlet.http.HttpServletRequest;
 public class AuthController {
 
     private final LoginUserUsecase loginUserUsecase;
-    private final LogoutUserUsecase logoutUserUsecase;
     private final GetCurrentSessionUsecase getCurrentSessionUsecase;
     private final RefreshSessionUsecase refreshSessionUsecase;
+
+    @Value("${jwt.access-token-expiration:3600000}")
+    private long accessTokenExpirationMillis;
+
+    @Value("${jwt.refresh-token-expiration:604800000}")
+    private long refreshTokenExpirationMillis;
 
     @Value("${jwt.cookie-name:access_token}")
     private String cookieName;
@@ -36,7 +49,6 @@ public class AuthController {
             RefreshSessionUsecase refreshSessionUsecase,
             @Value("${jwt.cookie-name:access_token}") String cookieName) {
         this.loginUserUsecase = loginUserUsecase;
-        this.logoutUserUsecase = logoutUserUsecase;
         this.getCurrentSessionUsecase = getCurrentSessionUsecase;
         this.refreshSessionUsecase = refreshSessionUsecase;
         this.cookieName = cookieName;
@@ -45,9 +57,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginUserCommand command,
             HttpServletResponse response) {
-        ApiResponse<LoginResponse> apiResponse = loginUserUsecase.execute(command, response);
+        LoginResponse loginResponse = loginUserUsecase.execute(command);
 
-        return ResponseEntity.ok(apiResponse);
+        setCookie(response, "access_token", loginResponse.accessToken(), accessTokenExpirationMillis);
+        setCookie(response, "refresh_token", loginResponse.refreshToken(), refreshTokenExpirationMillis);
+
+        return ResponseEntity.ok(ApiResponse.success(loginResponse));
     }
 
     @PostMapping("/logout")
@@ -59,36 +74,51 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<User>> me(HttpServletRequest request,
+    public ResponseEntity<ApiResponse<UserResponse>> me(HttpServletRequest request,
             @CookieValue(name = "access_token", required = false) String accessToken) {
         if (accessToken == null) {
             return ResponseEntity.status(401).body(ApiResponse.error("No autenticado"));
         }
         User user = getCurrentSessionUsecase.execute(new GetCurrentSessionQuery(accessToken));
-        return ResponseEntity.ok(ApiResponse.success(user));
+
+        return ResponseEntity.ok(ApiResponse.success(new UserResponse(user.getEmail(), user.getDisplayName(),
+                user.getRole().name(), user.getStatus().name(), user.getId().toString())));
     }
 
-    @GetMapping("/refresh")
-    public ResponseEntity<ApiResponse<Void>> refreshSession(
+    @PostMapping("/refresh")
+    public ResponseEntity<Void> refresh(
             @CookieValue(name = "refresh_token", required = false) String refreshToken,
             HttpServletResponse response) {
-        if (refreshToken == null) {
+        Optional<RefreshSessionResult> result = refreshSessionUsecase.execute(new RefreshSessionCommand(refreshToken));
+
+        if (result.isEmpty()) {
             clearCookie(response, "access_token");
             clearCookie(response, "refresh_token");
-            return ResponseEntity.status(401).body(ApiResponse.error("No autenticado"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        refreshSessionUsecase.execute(new RefreshSessionCommand(refreshToken), response);
+        setCookie(response, "access_token", result.get().accessToken(), accessTokenExpirationMillis);
+        setCookie(response, "refresh_token", result.get().refreshToken(), refreshTokenExpirationMillis);
 
-        return ResponseEntity.ok(ApiResponse.success("Sesión refrescada exitosamente"));
+        return ResponseEntity.noContent().build();
     }
 
     private void clearCookie(HttpServletResponse response, String name) {
-        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie(name, null);
+        Cookie cookie = new jakarta.servlet.http.Cookie(name, null);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
+        cookie.setAttribute("SameSite", "Strict");
+        response.addCookie(cookie);
+    }
+
+    private void setCookie(HttpServletResponse response, String name, String value, long maxAgeMillis) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge((int) (maxAgeMillis / 1000));
         cookie.setAttribute("SameSite", "Strict");
         response.addCookie(cookie);
     }

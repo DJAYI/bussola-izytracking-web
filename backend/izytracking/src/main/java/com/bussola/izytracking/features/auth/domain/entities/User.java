@@ -1,10 +1,9 @@
-package com.bussola.izytracking.features.auth.domain;
+package com.bussola.izytracking.features.auth.domain.entities;
 
 import java.util.UUID;
 
 import com.bussola.izytracking.features.auth.domain.enums.UserRole;
 import com.bussola.izytracking.features.auth.domain.enums.UserStatus;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class User {
 
@@ -12,22 +11,21 @@ public class User {
     private String displayName;
     private String email;
 
-    @JsonIgnore
     private String passwordHash;
 
     private UserRole role;
     private UserStatus status;
 
     public User() {
-        this.id = UUID.randomUUID();
         this.status = UserStatus.PENDING_ACTIVATION;
     }
 
-    public User(String displayName, String email, String passwordHash, UserRole role) {
+    public User(String displayName, String email, String passwordHash, UserRole role, UserStatus status) {
         this.displayName = displayName;
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
+        this.status = UserStatus.PENDING_ACTIVATION;
     }
 
     public UUID getId() {
@@ -76,6 +74,21 @@ public class User {
 
     public void setStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public boolean isActive() {
+        return status == UserStatus.ACTIVE;
+    }
+
+    public void activate() {
+        if (status != UserStatus.PENDING_ACTIVATION) {
+            throw new IllegalStateException("User cannot be activated");
+        }
+        this.status = UserStatus.ACTIVE;
+    }
+
+    public void block() {
+        this.status = UserStatus.INACTIVE;
     }
 
 }
