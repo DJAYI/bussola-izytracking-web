@@ -13,7 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.bussola.izytracking.features.auth.domain.entities.DomainUserDetails;
-import com.bussola.izytracking.features.auth.infrastructure.CustomUserDetailsService;
+import com.bussola.izytracking.features.auth.infrastructure.adapters.user_details_service.CustomUserDetailsService;
 
 import java.io.IOException;
 import java.util.Arrays;

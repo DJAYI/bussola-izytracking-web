@@ -1,4 +1,4 @@
-package com.bussola.izytracking.features.auth.infrastructure.repository.jpa.entities;
+package com.bussola.izytracking.features.auth.infrastructure.adapters.repository.jpa.entities;
 
 import java.util.UUID;
 

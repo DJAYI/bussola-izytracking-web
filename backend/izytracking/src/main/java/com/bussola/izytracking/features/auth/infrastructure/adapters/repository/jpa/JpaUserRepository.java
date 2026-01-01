@@ -1,4 +1,4 @@
-package com.bussola.izytracking.features.auth.infrastructure.repository.jpa;
+package com.bussola.izytracking.features.auth.infrastructure.adapters.repository.jpa;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.bussola.izytracking.features.auth.domain.entities.User;
 import com.bussola.izytracking.features.auth.domain.enums.UserStatus;
 import com.bussola.izytracking.features.auth.domain.repository.UserRepository;
-import com.bussola.izytracking.features.auth.infrastructure.repository.jpa.entities.JpaUserEntity;
+import com.bussola.izytracking.features.auth.infrastructure.adapters.repository.jpa.entities.JpaUserEntity;
 
 @Repository
 public class JpaUserRepository implements UserRepository {

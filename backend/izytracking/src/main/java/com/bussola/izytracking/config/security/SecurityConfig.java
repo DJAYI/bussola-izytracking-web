@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.bussola.izytracking.features.auth.infrastructure.CustomUserDetailsService;
+import com.bussola.izytracking.features.auth.infrastructure.adapters.user_details_service.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity

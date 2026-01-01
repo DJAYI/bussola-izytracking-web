@@ -1,4 +1,4 @@
-package com.bussola.izytracking.features.auth.infrastructure;
+package com.bussola.izytracking.features.auth.infrastructure.adapters.user_details_service;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
