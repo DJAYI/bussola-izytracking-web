@@ -33,6 +33,9 @@ public class JpaAgencyEntity {
     @Column(nullable = false, unique = true)
     private UUID userId;
 
+    @Column(nullable = false)
+    private String displayName;
+
     // Legal documentation
     @Column(nullable = false, unique = true)
     private String documentNumber;

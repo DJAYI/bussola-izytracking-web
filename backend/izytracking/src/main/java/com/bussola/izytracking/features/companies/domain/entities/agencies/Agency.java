@@ -8,18 +8,21 @@ import com.bussola.izytracking.features.companies.domain.value_objects.LegalDocu
 
 public class Agency {
     private final UUID id;
+    private final String displayName;
     private final LegalDocumentationDetails legalDocumentationDetails;
     private final AddressDetails addressDetails;
     private final ContactInformation contactInformation;
     private final UUID userId;
 
     public Agency(
+            String displayName,
             LegalDocumentationDetails legalDocumentationDetails,
             AddressDetails addressDetails,
             ContactInformation contactInformation,
             UUID userId) {
 
         this.id = UUID.randomUUID();
+        this.displayName = displayName;
         this.legalDocumentationDetails = legalDocumentationDetails;
         this.addressDetails = addressDetails;
         this.contactInformation = contactInformation;
@@ -60,6 +63,10 @@ public class Agency {
         return id;
     }
 
+    public String getDisplayName() {
+        return displayName;
+    }
+
     public LegalDocumentationDetails getLegalDocumentationDetails() {
         return legalDocumentationDetails;
     }
@@ -81,11 +88,13 @@ public class Agency {
      */
     private Agency(
             UUID id,
+            String displayName,
             LegalDocumentationDetails legalDocumentationDetails,
             AddressDetails addressDetails,
             ContactInformation contactInformation,
             UUID userId) {
         this.id = id;
+        this.displayName = displayName;
         this.legalDocumentationDetails = legalDocumentationDetails;
         this.addressDetails = addressDetails;
         this.contactInformation = contactInformation;
@@ -98,22 +107,24 @@ public class Agency {
      */
     public static Agency reconstitute(
             UUID id,
+            String displayName,
             LegalDocumentationDetails legalDocumentationDetails,
             AddressDetails addressDetails,
             ContactInformation contactInformation,
             UUID userId) {
-        return new Agency(id, legalDocumentationDetails, addressDetails, contactInformation, userId);
+        return new Agency(id, displayName, legalDocumentationDetails, addressDetails, contactInformation, userId);
     }
 
     /**
      * Creates a new Agency instance with updated address and contact information.
-     * Legal documentation and user association remain immutable.
+     * Legal documentation, displayName and user association remain immutable.
      */
     public Agency withUpdatedInformation(
             AddressDetails newAddressDetails,
             ContactInformation newContactInformation) {
         return new Agency(
                 this.id,
+                this.displayName,
                 this.legalDocumentationDetails,
                 newAddressDetails != null ? newAddressDetails : this.addressDetails,
                 newContactInformation != null ? newContactInformation : this.contactInformation,

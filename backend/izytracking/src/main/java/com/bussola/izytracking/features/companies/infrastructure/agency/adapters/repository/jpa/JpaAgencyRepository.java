@@ -84,6 +84,7 @@ public class JpaAgencyRepository implements AgencyRepository {
     private JpaAgencyEntity toNewEntity(Agency agency) {
         return JpaAgencyEntity.builder()
                 .userId(agency.getUserId())
+                .displayName(agency.getDisplayName())
                 // Legal documentation
                 .documentNumber(agency.getLegalDocumentationDetails().getDocumentNumber())
                 .documentType(agency.getLegalDocumentationDetails().getDocumentType())
@@ -108,6 +109,7 @@ public class JpaAgencyRepository implements AgencyRepository {
         return JpaAgencyEntity.builder()
                 .id(agency.getId())
                 .userId(agency.getUserId())
+                .displayName(agency.getDisplayName())
                 // Legal documentation
                 .documentNumber(agency.getLegalDocumentationDetails().getDocumentNumber())
                 .documentType(agency.getLegalDocumentationDetails().getDocumentType())
@@ -145,6 +147,7 @@ public class JpaAgencyRepository implements AgencyRepository {
 
         return Agency.reconstitute(
                 entity.getId(),
+                entity.getDisplayName(),
                 legalDocs,
                 address,
                 contact,

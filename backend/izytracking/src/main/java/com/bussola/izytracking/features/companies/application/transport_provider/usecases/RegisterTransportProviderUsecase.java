@@ -47,6 +47,7 @@ public class RegisterTransportProviderUsecase {
 
         // Create the agency linked to the user
         TransportProvider transportProvider = new TransportProvider(
+                command.displayName(),
                 command.legalDocumentationDetails(),
                 command.addressDetails(),
                 command.contactInformation(),

@@ -6,8 +6,8 @@ import com.bussola.izytracking.features.companies.domain.value_objects.AddressDe
 import com.bussola.izytracking.features.companies.domain.value_objects.ContactInformation;
 
 public record ModifyTransportProviderInformationCommand(
-                UUID transportProviderId,
-                AddressDetails addressDetails,
-                ContactInformation contactInformation) {
+        UUID transportProviderId,
+        AddressDetails addressDetails,
+        ContactInformation contactInformation) {
 
 }

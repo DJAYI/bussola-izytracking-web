@@ -7,6 +7,7 @@ import com.bussola.izytracking.features.companies.domain.entities.transport_prov
 public record TransportProviderResponse(
                 UUID id,
                 UUID userId,
+                String displayName,
                 LegalDocumentationResponse legalDocumentation,
                 AddressResponse address,
                 ContactResponse contact) {
@@ -15,6 +16,7 @@ public record TransportProviderResponse(
                 return new TransportProviderResponse(
                                 agency.getId(),
                                 agency.getUserId(),
+                                agency.getDisplayName(),
                                 new LegalDocumentationResponse(
                                                 agency.getLegalDocumentationDetails().getDocumentNumber(),
                                                 agency.getLegalDocumentationDetails().getDocumentType().name(),

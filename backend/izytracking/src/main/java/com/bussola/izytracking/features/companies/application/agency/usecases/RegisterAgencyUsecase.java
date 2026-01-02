@@ -47,6 +47,7 @@ public class RegisterAgencyUsecase {
 
         // Create the agency linked to the user
         Agency agency = new Agency(
+                command.displayName(),
                 command.legalDocumentationDetails(),
                 command.addressDetails(),
                 command.contactInformation(),

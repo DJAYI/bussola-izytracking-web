@@ -84,6 +84,7 @@ public class JpaTransportProviderRepository implements TransportProviderReposito
     private JpaTransportProviderEntity toNewEntity(TransportProvider agency) {
         return JpaTransportProviderEntity.builder()
                 .userId(agency.getUserId())
+                .displayName(agency.getDisplayName())
                 // Legal documentation
                 .documentNumber(agency.getLegalDocumentationDetails().getDocumentNumber())
                 .documentType(agency.getLegalDocumentationDetails().getDocumentType())
@@ -108,6 +109,7 @@ public class JpaTransportProviderRepository implements TransportProviderReposito
         return JpaTransportProviderEntity.builder()
                 .id(agency.getId())
                 .userId(agency.getUserId())
+                .displayName(agency.getDisplayName())
                 // Legal documentation
                 .documentNumber(agency.getLegalDocumentationDetails().getDocumentNumber())
                 .documentType(agency.getLegalDocumentationDetails().getDocumentType())
@@ -145,6 +147,7 @@ public class JpaTransportProviderRepository implements TransportProviderReposito
 
         return TransportProvider.reconstitute(
                 entity.getId(),
+                entity.getDisplayName(),
                 legalDocs,
                 address,
                 contact,

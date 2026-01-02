@@ -6,8 +6,8 @@ import com.bussola.izytracking.features.companies.domain.value_objects.AddressDe
 import com.bussola.izytracking.features.companies.domain.value_objects.ContactInformation;
 
 public record ModifyAgencyInformationCommand(
-        UUID agencyId,
-        AddressDetails addressDetails,
-        ContactInformation contactInformation) {
+                UUID agencyId,
+                AddressDetails addressDetails,
+                ContactInformation contactInformation) {
 
 }
