@@ -18,13 +18,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bussola.izytracking.config.api.dto.ApiResponse;
 import com.bussola.izytracking.config.api.dto.PaginatedResponse;
 import com.bussola.izytracking.features.auth.domain.entities.DomainUserDetails;
-import com.bussola.izytracking.features.companies.application.transport_provider.dto.TransportProviderResponse;
 import com.bussola.izytracking.features.companies.application.transport_provider.dto.RegisterTransportProviderResponse;
+import com.bussola.izytracking.features.companies.application.transport_provider.dto.TransportProviderResponse;
+import com.bussola.izytracking.features.companies.application.transport_provider.dto.UpdateMyTransportProviderRequest;
 import com.bussola.izytracking.features.companies.application.transport_provider.usecases.GetMyTransportProviderProfileUsecase;
 import com.bussola.izytracking.features.companies.application.transport_provider.usecases.ListTransportProviderUsecase;
+import com.bussola.izytracking.features.companies.application.transport_provider.usecases.ModifyMyTransportProviderInformationUsecase;
 import com.bussola.izytracking.features.companies.application.transport_provider.usecases.ModifyTransportProviderInformationUsecase;
 import com.bussola.izytracking.features.companies.application.transport_provider.usecases.RegisterTransportProviderUsecase;
 import com.bussola.izytracking.features.companies.application.transport_provider.usecases.ViewTransportProviderProfileUsecase;
+import com.bussola.izytracking.features.companies.domain.usecases.transport_providers.commands.ModifyMyTransportProviderInformationCommand;
 import com.bussola.izytracking.features.companies.domain.usecases.transport_providers.commands.ModifyTransportProviderInformationCommand;
 import com.bussola.izytracking.features.companies.domain.usecases.transport_providers.commands.RegisterTransportProviderCommand;
 import com.bussola.izytracking.features.companies.domain.usecases.transport_providers.queries.GetMyTransportProviderProfileQuery;
@@ -32,13 +35,13 @@ import com.bussola.izytracking.features.companies.domain.usecases.transport_prov
 import com.bussola.izytracking.features.companies.domain.usecases.transport_providers.queries.ViewTransportProviderProfileQuery;
 
 @RestController
-
 @RequestMapping("/api/transport-providers")
 public class TransportProviderController {
 
     private final RegisterTransportProviderUsecase registerTransportProviderUsecase;
     private final ViewTransportProviderProfileUsecase viewTransportProviderProfileUsecase;
     private final ModifyTransportProviderInformationUsecase modifyTransportProviderInformationUsecase;
+    private final ModifyMyTransportProviderInformationUsecase modifyMyTransportProviderInformationUsecase;
     private final ListTransportProviderUsecase listTransportProviderUsecase;
     private final GetMyTransportProviderProfileUsecase getMyTransportProviderProfileUsecase;
 
@@ -46,11 +49,13 @@ public class TransportProviderController {
             RegisterTransportProviderUsecase registerTransportProviderUsecase,
             ViewTransportProviderProfileUsecase viewTransportProviderProfileUsecase,
             ModifyTransportProviderInformationUsecase modifyTransportProviderInformationUsecase,
+            ModifyMyTransportProviderInformationUsecase modifyMyTransportProviderInformationUsecase,
             ListTransportProviderUsecase listTransportProviderUsecase,
             GetMyTransportProviderProfileUsecase getMyTransportProviderProfileUsecase) {
         this.registerTransportProviderUsecase = registerTransportProviderUsecase;
         this.viewTransportProviderProfileUsecase = viewTransportProviderProfileUsecase;
         this.modifyTransportProviderInformationUsecase = modifyTransportProviderInformationUsecase;
+        this.modifyMyTransportProviderInformationUsecase = modifyMyTransportProviderInformationUsecase;
         this.listTransportProviderUsecase = listTransportProviderUsecase;
         this.getMyTransportProviderProfileUsecase = getMyTransportProviderProfileUsecase;
     }
@@ -86,6 +91,20 @@ public class TransportProviderController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    @PutMapping("/me")
+    @PreAuthorize("hasRole('TRANSPORT_PROVIDER')")
+    public ResponseEntity<ApiResponse<TransportProviderResponse>> updateMyProfile(
+            @AuthenticationPrincipal DomainUserDetails userDetails,
+            @RequestBody UpdateMyTransportProviderRequest request) {
+        ModifyMyTransportProviderInformationCommand command = new ModifyMyTransportProviderInformationCommand(
+                userDetails.getUser().getId(),
+                request.addressDetails(),
+                request.contactInformation());
+
+        TransportProviderResponse response = modifyMyTransportProviderInformationUsecase.execute(command);
+        return ResponseEntity.ok(ApiResponse.success("Transport provider information updated successfully", response));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<TransportProviderResponse>> getProfile(@PathVariable UUID id) {
@@ -95,7 +114,7 @@ public class TransportProviderController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('TRANSPORT_PROVIDER', 'ADMIN')")
     public ResponseEntity<ApiResponse<TransportProviderResponse>> update(
             @PathVariable UUID id,
             @RequestBody ModifyTransportProviderInformationCommand command) {

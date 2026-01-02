@@ -20,12 +20,15 @@ import com.bussola.izytracking.config.api.dto.PaginatedResponse;
 import com.bussola.izytracking.features.auth.domain.entities.DomainUserDetails;
 import com.bussola.izytracking.features.companies.application.agency.dto.AgencyResponse;
 import com.bussola.izytracking.features.companies.application.agency.dto.RegisterAgencyResponse;
+import com.bussola.izytracking.features.companies.application.agency.dto.UpdateMyAgencyRequest;
 import com.bussola.izytracking.features.companies.application.agency.usecases.GetMyAgencyProfileUsecase;
 import com.bussola.izytracking.features.companies.application.agency.usecases.ListAgenciesUsecase;
 import com.bussola.izytracking.features.companies.application.agency.usecases.ModifyAgencyInformationUsecase;
+import com.bussola.izytracking.features.companies.application.agency.usecases.ModifyMyAgencyInformationUsecase;
 import com.bussola.izytracking.features.companies.application.agency.usecases.RegisterAgencyUsecase;
 import com.bussola.izytracking.features.companies.application.agency.usecases.ViewAgencyProfileUsecase;
 import com.bussola.izytracking.features.companies.domain.usecases.agencies.commands.ModifyAgencyInformationCommand;
+import com.bussola.izytracking.features.companies.domain.usecases.agencies.commands.ModifyMyAgencyInformationCommand;
 import com.bussola.izytracking.features.companies.domain.usecases.agencies.commands.RegisterAgencyCommand;
 import com.bussola.izytracking.features.companies.domain.usecases.agencies.queries.GetMyAgencyProfileQuery;
 import com.bussola.izytracking.features.companies.domain.usecases.agencies.queries.ListAgenciesQuery;
@@ -39,6 +42,7 @@ public class AgencyController {
     private final RegisterAgencyUsecase registerAgencyUsecase;
     private final ViewAgencyProfileUsecase viewAgencyProfileUsecase;
     private final ModifyAgencyInformationUsecase modifyAgencyInformationUsecase;
+    private final ModifyMyAgencyInformationUsecase modifyMyAgencyInformationUsecase;
     private final ListAgenciesUsecase listAgenciesUsecase;
     private final GetMyAgencyProfileUsecase getMyAgencyProfileUsecase;
 
@@ -46,11 +50,13 @@ public class AgencyController {
             RegisterAgencyUsecase registerAgencyUsecase,
             ViewAgencyProfileUsecase viewAgencyProfileUsecase,
             ModifyAgencyInformationUsecase modifyAgencyInformationUsecase,
+            ModifyMyAgencyInformationUsecase modifyMyAgencyInformationUsecase,
             ListAgenciesUsecase listAgenciesUsecase,
             GetMyAgencyProfileUsecase getMyAgencyProfileUsecase) {
         this.registerAgencyUsecase = registerAgencyUsecase;
         this.viewAgencyProfileUsecase = viewAgencyProfileUsecase;
         this.modifyAgencyInformationUsecase = modifyAgencyInformationUsecase;
+        this.modifyMyAgencyInformationUsecase = modifyMyAgencyInformationUsecase;
         this.listAgenciesUsecase = listAgenciesUsecase;
         this.getMyAgencyProfileUsecase = getMyAgencyProfileUsecase;
     }
@@ -84,6 +90,20 @@ public class AgencyController {
         AgencyResponse response = getMyAgencyProfileUsecase.execute(
                 new GetMyAgencyProfileQuery(userDetails.getUser().getId()));
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PutMapping("/me")
+    @PreAuthorize("hasRole('AGENCY')")
+    public ResponseEntity<ApiResponse<AgencyResponse>> updateMyProfile(
+            @AuthenticationPrincipal DomainUserDetails userDetails,
+            @RequestBody UpdateMyAgencyRequest request) {
+        ModifyMyAgencyInformationCommand command = new ModifyMyAgencyInformationCommand(
+                userDetails.getUser().getId(),
+                request.addressDetails(),
+                request.contactInformation());
+
+        AgencyResponse response = modifyMyAgencyInformationUsecase.execute(command);
+        return ResponseEntity.ok(ApiResponse.success("Agency information updated successfully", response));
     }
 
     @GetMapping("/{id}")
