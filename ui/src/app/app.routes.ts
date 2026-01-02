@@ -4,6 +4,7 @@ import { App } from './app';
 import { clientRoutes } from './features/companies/clients/companies-clients.routes';
 import { transportProvidersRoutes } from './features/companies/transport-providers/companies-transport-providers.routes';
 import { UserProfileComponent } from './features/identify/user-profile';
+import { LoginPage } from './auth/pages/login/login';
 
 export const routes: Routes = [
     {
@@ -15,7 +16,7 @@ export const routes: Routes = [
         children: [
             {
                 path: 'login',
-                component: App
+                component: LoginPage
             },
             {
                 path: 'register',
