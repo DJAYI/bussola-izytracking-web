@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal } from "@angular/core";
+import { form, Field } from "@angular/forms/signals";
 import { User } from "../../models/user.interface";
 import { UserCompany } from "../../models/user-company.interface";
-import { CompanyService } from "../../company.service";
+import { CompanyService, UpdateCompanyPayload } from "../../company.service";
 
 const DOCUMENT_TYPE_LABELS: Record<string, string> = {
     'NIT': 'NIT',
@@ -15,9 +16,20 @@ const PERSON_TYPE_LABELS: Record<string, string> = {
     'JURIDICAL': 'Jurídica'
 };
 
+interface EditFormModel {
+    street: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+    email: string;
+    phoneNumber: string;
+}
+
 @Component({
     selector: 'app-profile',
     changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [Field],
     template: `
         @if (profile(); as user) {
         <div class="p-8 max-w-7xl mx-auto w-full">
@@ -26,11 +38,34 @@ const PERSON_TYPE_LABELS: Record<string, string> = {
                     <h3 class="text-2xl font-bold text-gray-900">Información del Usuario</h3>
                     <p class="text-gray-500 mt-1">Gestione su información personal, legal y de contacto.</p>
                 </div>
-                <button 
-                    type="button"
-                    class="text-blue-500 hover:cursor-pointer px-5 py-2 outline bg-white hover:bg-black rounded-md hover:text-white font-medium flex items-center gap-1 transition-colors">
-                     Editar Perfil
-                </button>
+                @if (isEditing()) {
+                    <div class="flex gap-2">
+                        <button 
+                            type="button"
+                            (click)="cancelEditing()"
+                            class="text-gray-600 hover:cursor-pointer px-5 py-2 bg-gray-100 hover:bg-gray-200 rounded-md font-medium flex items-center gap-1 transition-colors">
+                            Cancelar
+                        </button>
+                        <button 
+                            type="button"
+                            (click)="saveChanges()"
+                            [disabled]="isSaving()"
+                            class="text-white hover:cursor-pointer px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-md font-medium flex items-center gap-1 transition-colors">
+                            @if (isSaving()) {
+                                Guardando...
+                            } @else {
+                                Guardar Cambios
+                            }
+                        </button>
+                    </div>
+                } @else if (!user.isAdmin) {
+                    <button 
+                        type="button"
+                        (click)="startEditing()"
+                        class="text-blue-500 hover:cursor-pointer px-5 py-2 outline bg-white hover:bg-black rounded-md hover:text-white font-medium flex items-center gap-1 transition-colors">
+                        Editar Perfil
+                    </button>
+                }
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -83,6 +118,7 @@ const PERSON_TYPE_LABELS: Record<string, string> = {
                 </div>
 
                 <!-- Info Cards -->
+                @if (!user.isAdmin) {
                 <div class="col-span-1 lg:col-span-2 space-y-6">
                     <!-- Legal Documentation -->
                     <section class="bg-surface-light rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -130,15 +166,33 @@ const PERSON_TYPE_LABELS: Record<string, string> = {
                         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Correo Electrónico</label>
-                                <div class="flex items-center gap-2 text-sm text-gray-900">
-                                    {{ user.email }}
-                                </div>
+                                @if (isEditing()) {
+                                    <input 
+                                        type="email"
+                                        [field]="editForm.email"
+                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+                                        aria-label="Correo Electrónico"
+                                    />
+                                } @else {
+                                    <div class="flex items-center gap-2 text-sm text-gray-900">
+                                        {{ user.email }}
+                                    </div>
+                                }
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Número de Teléfono</label>
-                                <div class="flex items-center gap-2 text-sm text-gray-900">
-                                    {{ user.phone }}
-                                </div>
+                                @if (isEditing()) {
+                                    <input 
+                                        type="tel"
+                                        [field]="editForm.phoneNumber"
+                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+                                        aria-label="Número de Teléfono"
+                                    />
+                                } @else {
+                                    <div class="flex items-center gap-2 text-sm text-gray-900">
+                                        {{ user.phone }}
+                                    </div>
+                                }
                             </div>
                         </div>
                     </section>
@@ -155,29 +209,75 @@ const PERSON_TYPE_LABELS: Record<string, string> = {
                         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="md:col-span-2">
                                 <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Calle / Dirección</label>
-                                <p class="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2">{{ user.address }}</p>
+                                @if (isEditing()) {
+                                    <input 
+                                        type="text"
+                                        [field]="editForm.street"
+                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+                                        aria-label="Calle / Dirección"
+                                    />
+                                } @else {
+                                    <p class="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2">{{ user.address }}</p>
+                                }
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Ciudad</label>
-                                <p class="text-sm text-gray-700">{{ user.city }}</p>
+                                @if (isEditing()) {
+                                    <input 
+                                        type="text"
+                                        [field]="editForm.city"
+                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+                                        aria-label="Ciudad"
+                                    />
+                                } @else {
+                                    <p class="text-sm text-gray-700">{{ user.city }}</p>
+                                }
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Estado / Departamento</label>
-                                <p class="text-sm text-gray-700">{{ user.state }}</p>
+                                @if (isEditing()) {
+                                    <input 
+                                        type="text"
+                                        [field]="editForm.state"
+                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+                                        aria-label="Estado / Departamento"
+                                    />
+                                } @else {
+                                    <p class="text-sm text-gray-700">{{ user.state }}</p>
+                                }
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Código Postal</label>
-                                <p class="text-sm text-gray-700">{{ user.postalCode }}</p>
+                                @if (isEditing()) {
+                                    <input 
+                                        type="text"
+                                        [field]="editForm.postalCode"
+                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+                                        aria-label="Código Postal"
+                                    />
+                                } @else {
+                                    <p class="text-sm text-gray-700">{{ user.postalCode }}</p>
+                                }
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">País</label>
-                                <p class="text-sm text-gray-700 flex items-center gap-2">
-                                    {{ user.country }}
-                                </p>
+                                @if (isEditing()) {
+                                    <input 
+                                        type="text"
+                                        [field]="editForm.country"
+                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+                                        aria-label="País"
+                                    />
+                                } @else {
+                                    <p class="text-sm text-gray-700 flex items-center gap-2">
+                                        {{ user.country }}
+                                    </p>
+                                }
                             </div>
                         </div>
                     </section>
                 </div>
+                }
             </div>
         </div>
         }
@@ -189,17 +289,35 @@ export class ProfilePage implements OnInit {
     private readonly user = signal<User | null>(null);
     private readonly company = signal<UserCompany | null>(null);
 
+    protected readonly isEditing = signal(false);
+    protected readonly isSaving = signal(false);
+
+    protected readonly formModel = signal<EditFormModel>({
+        street: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: '',
+        email: '',
+        phoneNumber: ''
+    });
+
+    protected readonly editForm = form(this.formModel);
+
     protected readonly profile = computed(() => {
         const user = this.user();
         const company = this.company();
 
         if (!user) return null;
 
+        const isAdmin = user.role === 'ADMIN';
+
         return {
             avatarUrl: undefined as string | undefined,
             fullName: user.displayName,
             email: user.email,
             role: user.role,
+            isAdmin,
             isActive: user.status === 'ACTIVE',
             isVerified: user.status === 'ACTIVE',
             memberSince: new Date(user.createdAt).toLocaleDateString('es-CO', {
@@ -224,12 +342,72 @@ export class ProfilePage implements OnInit {
     }
 
     private loadProfile(): void {
-        this.companyService.getFullProfile().subscribe({
-            next: ({ user, company }) => {
+        this.companyService.getAuthenticatedUser().subscribe({
+            next: ({ data: user }) => {
                 this.user.set(user);
-                this.company.set(company);
+                if (user.role !== 'ADMIN') {
+                    this.loadCompanyDetails(user.role);
+                }
             },
             error: (err) => console.error('Error loading profile:', err)
+        });
+    }
+
+    private loadCompanyDetails(role: string): void {
+        this.companyService.getCompanyDetails(role).subscribe({
+            next: ({ data: company }) => this.company.set(company),
+            error: (err) => console.error('Error loading company details:', err)
+        });
+    }
+
+    protected startEditing(): void {
+        const company = this.company();
+        this.formModel.set({
+            street: company?.address?.street ?? '',
+            city: company?.address?.city ?? '',
+            state: company?.address?.state ?? '',
+            postalCode: company?.address?.postalCode ?? '',
+            country: company?.address?.country ?? '',
+            email: company?.contact?.email ?? '',
+            phoneNumber: company?.contact?.phoneNumber ?? ''
+        });
+        this.isEditing.set(true);
+    }
+
+    protected cancelEditing(): void {
+        this.isEditing.set(false);
+    }
+
+    protected saveChanges(): void {
+        const user = this.user();
+        if (!user) return;
+
+        const formValue = this.formModel();
+        const payload: UpdateCompanyPayload = {
+            addressDetails: {
+                street: formValue.street,
+                city: formValue.city,
+                state: formValue.state,
+                postalCode: formValue.postalCode,
+                country: formValue.country
+            },
+            contactInformation: {
+                email: formValue.email,
+                phoneNumber: formValue.phoneNumber
+            }
+        };
+
+        this.isSaving.set(true);
+        this.companyService.updateCompanyDetails(user.role, payload).subscribe({
+            next: ({ data: updatedCompany }) => {
+                this.company.set(updatedCompany);
+                this.isEditing.set(false);
+                this.isSaving.set(false);
+            },
+            error: (err) => {
+                console.error('Error updating company details:', err);
+                this.isSaving.set(false);
+            }
         });
     }
 

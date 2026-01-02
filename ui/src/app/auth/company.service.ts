@@ -6,6 +6,20 @@ import { ApiResponse } from "../utils/api-response.interface";
 import { User } from "./models/user.interface";
 import { UserCompany } from "./models/user-company.interface";
 
+export interface UpdateCompanyPayload {
+    addressDetails: {
+        street: string;
+        city: string;
+        state: string;
+        postalCode: string;
+        country: string;
+    };
+    contactInformation: {
+        email: string;
+        phoneNumber: string;
+    };
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -20,6 +34,11 @@ export class CompanyService {
     getCompanyDetails(role: string): Observable<ApiResponse<UserCompany>> {
         const endpoint = role === 'AGENCY' ? 'agencies' : 'transport-providers';
         return this.httpClient.get<ApiResponse<UserCompany>>(`${this.apiUrl}${endpoint}/me`);
+    }
+
+    updateCompanyDetails(role: string, payload: UpdateCompanyPayload): Observable<ApiResponse<UserCompany>> {
+        const endpoint = role === 'AGENCY' ? 'agencies' : 'transport-providers';
+        return this.httpClient.put<ApiResponse<UserCompany>>(`${this.apiUrl}${endpoint}/me`, payload);
     }
 
     getFullProfile(): Observable<{ user: User; company: UserCompany }> {
