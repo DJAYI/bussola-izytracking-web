@@ -1,10 +1,7 @@
-import { HttpClient } from "@angular/common/http";
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from "@angular/core";
-import { forkJoin } from "rxjs";
-import { environment } from "../../../../environments/environment.development";
 import { User } from "../../models/user.interface";
 import { UserCompany } from "../../models/user-company.interface";
-import { ApiResponse } from "../../../utils/api-response.interface";
+import { CompanyService } from "../../company.service";
 
 const DOCUMENT_TYPE_LABELS: Record<string, string> = {
     'NIT': 'NIT',
@@ -108,7 +105,8 @@ const PERSON_TYPE_LABELS: Record<string, string> = {
                                 <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Número de Documento</label>
                                 <div class="flex items-center justify-between text-sm font-medium text-gray-900 bg-gray-50 px-3 py-2 rounded-md border border-gray-200">
                                     <span class="mt-1 font-sans font-semibold">{{ user.documentNumber }}</span>
-                                    <button 
+                                    <button
+                                        (click)="copyDocumentNumberToClipboard(user.documentNumber)"
                                         type="button" 
                                         class="text-gray-400 text-sm cursor-pointer p-2 border bg-gray-200 border-gray-300 rounded-lg hover:border-blue-400 hover:text-blue-600 transition-colors"
                                         aria-label="Copiar número de documento">
@@ -186,8 +184,7 @@ const PERSON_TYPE_LABELS: Record<string, string> = {
     `
 })
 export class ProfilePage implements OnInit {
-    private readonly apiUrl = environment.apiUrl;
-    private readonly httpClient = inject(HttpClient);
+    private readonly companyService = inject(CompanyService);
 
     private readonly user = signal<User | null>(null);
     private readonly company = signal<UserCompany | null>(null);
@@ -227,20 +224,20 @@ export class ProfilePage implements OnInit {
     }
 
     private loadProfile(): void {
-        this.httpClient.get<ApiResponse<User>>(`${this.apiUrl}auth/me`).subscribe({
-            next: ({ data }) => {
-                this.user.set(data);
-                this.loadCompanyDetails(data.role);
-            }
+        this.companyService.getFullProfile().subscribe({
+            next: ({ user, company }) => {
+                this.user.set(user);
+                this.company.set(company);
+            },
+            error: (err) => console.error('Error loading profile:', err)
         });
     }
 
-    private loadCompanyDetails(role: string): void {
-        const endpoint = role === 'AGENCY' ? 'agencies' : 'transport-providers';
-
-        this.httpClient.get<ApiResponse<UserCompany>>(`${this.apiUrl}${endpoint}/me`).subscribe({
-            next: ({ data }) => this.company.set(data),
-            error: (err) => console.error('Error fetching company details:', err)
+    copyDocumentNumberToClipboard(documentNumber: string): void {
+        navigator.clipboard.writeText(documentNumber).then(() => {
+            console.log('Número de documento copiado al portapapeles');
+        }).catch(err => {
+            console.error('Error al copiar el número de documento: ', err);
         });
     }
 }
