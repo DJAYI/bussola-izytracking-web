@@ -4,4 +4,5 @@ export interface User {
     email: string;
     role: 'ADMIN' | 'AGENCY' | 'TRANSPORT_PROVIDER';
     status: 'ACTIVE' | 'INACTIVE' | 'PENDING_ACTIVATION';
+    createdAt: string;
 }

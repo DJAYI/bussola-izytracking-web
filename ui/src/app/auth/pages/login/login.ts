@@ -2,6 +2,7 @@ import { Component, inject, signal } from "@angular/core";
 import { email, Field, form, minLength, required, submit } from "@angular/forms/signals";
 import { LoginCredentials } from "../../models/login.interface";
 import { AuthService } from "../../auth,service";
+import { Router } from "@angular/router";
 
 
 @Component({
@@ -43,6 +44,7 @@ import { AuthService } from "../../auth,service";
 
 export class LoginPage {
     authService = inject(AuthService);
+    router = inject(Router);
 
     credentials = signal<LoginCredentials>({
         email: '',
@@ -65,7 +67,10 @@ export class LoginPage {
             this.authService.login(this.credentials()).subscribe({
                 next: (response) => {
                     console.log('Login successful', response);
-                    this.authService.currentUser = response;
+                    this.authService.setAccessToken(response.data.accessToken);
+                    this.authService.getCurrentSession();
+
+                    this.router.navigate(['/admin']);
                 },
                 error: (error) => {
                     console.error('Login failed', error);

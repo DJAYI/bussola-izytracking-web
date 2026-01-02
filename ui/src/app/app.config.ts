@@ -3,11 +3,14 @@ import { provideRouter, withComponentInputBinding, withViewTransitions } from '@
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { sessionInterceptor } from './auth/interceptors/session-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes, withViewTransitions(), withComponentInputBinding()), provideClientHydration(withEventReplay()), provideHttpClient(withFetch())
+    provideRouter(routes, withViewTransitions(), withComponentInputBinding()),
+    provideClientHydration(withEventReplay()),
+    provideHttpClient(withFetch(), withInterceptors([sessionInterceptor]))
   ]
 };

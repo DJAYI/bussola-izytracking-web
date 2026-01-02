@@ -1,5 +1,6 @@
 import { Component, inject, signal } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
+import { AuthService } from "../../../../auth/auth,service";
 
 @Component({
     selector: 'header-user-popover',
@@ -88,6 +89,7 @@ import { Router, RouterLink } from "@angular/router";
                             </li>
                             <li class="border-t border-gray-200 pt-2">
                                 <button
+                                    (click)="logout()"
                                     type="button"
                                     role="menuitem"
                                     class="w-full flex items-center text-left gap-2 cursor-pointer px-4 py-1.5 rounded-md hover:bg-red-100 hover:text-red-800 transition-all text-gray-700"
@@ -105,6 +107,9 @@ import { Router, RouterLink } from "@angular/router";
 })
 
 export class HeaderUserPopover {
+    private router = inject(Router);
+    private authService = inject(AuthService);
+
     readonly menuId = "header-dashboard-user-menu";
     popoverOpen = signal(false);
 
@@ -116,5 +121,8 @@ export class HeaderUserPopover {
         this.popoverOpen.set(false);
     }
 
-
+    logout() {
+        this.authService.logout();
+        this.router.navigate(['/auth/login']);
+    }
 }

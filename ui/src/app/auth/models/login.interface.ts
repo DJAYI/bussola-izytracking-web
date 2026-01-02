@@ -8,5 +8,4 @@ export interface LoginResponse {
     displayName: string;
     role: 'ADMIN' | 'AGENCY' | 'TRANSPORT_PROVIDER';
     accessToken: string;
-    refreshToken: string;
 }
