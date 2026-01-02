@@ -316,7 +316,7 @@ export class ProfilePage implements OnInit {
             avatarUrl: undefined as string | undefined,
             fullName: user.displayName,
             email: user.email,
-            role: user.role,
+            role: user.role === 'ADMIN' ? 'Administrador' : (user.role === 'AGENCY' ? 'Agencia' : 'Proveedor de Transporte'),
             isAdmin,
             isActive: user.status === 'ACTIVE',
             isVerified: user.status === 'ACTIVE',
