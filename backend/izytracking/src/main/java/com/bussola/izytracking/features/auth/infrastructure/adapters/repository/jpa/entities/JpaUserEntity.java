@@ -1,10 +1,16 @@
 package com.bussola.izytracking.features.auth.infrastructure.adapters.repository.jpa.entities;
 
+import java.sql.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import com.bussola.izytracking.features.auth.domain.enums.UserRole;
 import com.bussola.izytracking.features.auth.domain.enums.UserStatus;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -39,4 +45,8 @@ public class JpaUserEntity {
 
     @Enumerated(EnumType.STRING)
     private UserStatus status;
+
+    @Column(name = "created_at")
+    @CreationTimestamp
+    private Instant createdAt;
 }

@@ -56,6 +56,7 @@ public class JpaUserRepository implements UserRepository {
                 .password(user.getPasswordHash())
                 .role(user.getRole())
                 .status(user.getStatus())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 
@@ -67,6 +68,7 @@ public class JpaUserRepository implements UserRepository {
         user.setPasswordHash(entity.getPassword());
         user.setRole(entity.getRole());
         user.setStatus(entity.getStatus());
+        user.setCreatedAt(entity.getCreatedAt());
         return user;
     }
 

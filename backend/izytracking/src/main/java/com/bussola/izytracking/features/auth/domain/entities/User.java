@@ -1,5 +1,6 @@
 package com.bussola.izytracking.features.auth.domain.entities;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import com.bussola.izytracking.features.auth.domain.enums.UserRole;
@@ -15,17 +16,20 @@ public class User {
 
     private UserRole role;
     private UserStatus status;
+    private Instant createdAt;
 
     public User() {
         this.status = UserStatus.PENDING_ACTIVATION;
     }
 
-    public User(String displayName, String email, String passwordHash, UserRole role, UserStatus status) {
+    public User(String displayName, String email, String passwordHash, UserRole role, UserStatus status,
+            Instant createdAt) {
         this.displayName = displayName;
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
         this.status = UserStatus.PENDING_ACTIVATION;
+        this.createdAt = createdAt;
     }
 
     public UUID getId() {
@@ -74,6 +78,14 @@ public class User {
 
     public void setStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
     public boolean isActive() {

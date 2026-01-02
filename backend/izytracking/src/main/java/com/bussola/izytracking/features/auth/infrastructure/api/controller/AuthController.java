@@ -80,7 +80,7 @@ public class AuthController {
         User user = getCurrentSessionUsecase.execute(new GetCurrentSessionQuery(accessToken));
 
         return ResponseEntity.ok(ApiResponse.success(new UserResponse(user.getEmail(), user.getDisplayName(),
-                user.getRole().name(), user.getStatus().name(), user.getId().toString())));
+                user.getRole().name(), user.getStatus().name(), user.getId().toString(), user.getCreatedAt())));
     }
 
     @PostMapping("/refresh")

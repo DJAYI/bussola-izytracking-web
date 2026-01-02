@@ -32,7 +32,7 @@ import com.bussola.izytracking.features.companies.domain.usecases.transport_prov
 import com.bussola.izytracking.features.companies.domain.usecases.transport_providers.queries.ViewTransportProviderProfileQuery;
 
 @RestController
-@PreAuthorize("hasRole('ADMIN')")
+
 @RequestMapping("/api/transport-providers")
 public class TransportProviderController {
 
@@ -78,7 +78,7 @@ public class TransportProviderController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('AGENCY')")
+    @PreAuthorize("hasRole('TRANSPORT_PROVIDER')")
     public ResponseEntity<ApiResponse<TransportProviderResponse>> getMyProfile(
             @AuthenticationPrincipal DomainUserDetails userDetails) {
         TransportProviderResponse response = getMyTransportProviderProfileUsecase.execute(

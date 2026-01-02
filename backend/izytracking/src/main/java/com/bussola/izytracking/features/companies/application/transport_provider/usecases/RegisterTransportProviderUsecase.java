@@ -66,7 +66,7 @@ public class RegisterTransportProviderUsecase {
         user.setDisplayName(command.displayName());
         user.setEmail(command.email());
         user.setPasswordHash(passwordEncoder.encode(command.password()));
-        user.setRole(UserRole.AGENCY);
+        user.setRole(UserRole.TRANSPORT_PROVIDER);
         user.setStatus(UserStatus.PENDING_ACTIVATION);
         return user;
     }
