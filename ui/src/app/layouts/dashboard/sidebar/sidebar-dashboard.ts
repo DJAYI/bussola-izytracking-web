@@ -1,5 +1,6 @@
-import { Component, input } from "@angular/core";
+import { Component, inject, input, OnInit } from "@angular/core";
 import { SidebarNavItem } from "./nav-item/sidebar-nav-item";
+import { AuthService } from "../../../auth/auth,service";
 
 type SidebarLink = {
     link: string;
@@ -38,6 +39,8 @@ type SidebarLink = {
     imports: [SidebarNavItem],
 })
 export class SidebarDashboard {
+    authService = inject(AuthService);
+
     links: SidebarLink[] = [
         { link: 'clients', name: 'Clientes', role: ['ADMIN'] },
         { link: 'transport-providers', name: 'Proveedores de Transporte', role: ['ADMIN'] },
@@ -51,6 +54,13 @@ export class SidebarDashboard {
     open = input.required<boolean>();
 
     constructor() {
-        this.links = this.links.filter(link => link.role.includes('ADMIN'));
+        this.authService.getCurrentSession().subscribe({
+            next: (res) => {
+                this.links = this.links.filter(link => link.role.includes(res.data.role));
+            },
+            error: (error) => {
+                console.error('Failed to filter sidebar links based on user role', error);
+            }
+        });
     }
 }

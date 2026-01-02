@@ -70,7 +70,7 @@ interface EditFormModel {
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Profile Card -->
-                <div class="col-span-1">
+                <div class="col-span-1" [class.col-span-3]="user.isAdmin">
                     <div class="bg-surface-light rounded-xl shadow-sm border border-gray-200 p-6 text-center h-full">
                         <div class="relative inline-block">
                             <img 
@@ -93,13 +93,13 @@ interface EditFormModel {
                             {{ user.role }}
                         </div>
                         <div class="mt-8 border-t flex flex-col items-stretch w-full mx-4 border-gray-100 pt-6 text-left space-y-4">
-                            <div class="flex  items-center gap-3 text-sm text-gray-600">
+                            <div class="flex items-center gap-3 text-sm text-gray-600" [class.justify-center]="user.isAdmin">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                                 <span>Miembro desde: <span class="font-medium text-gray-900">{{ user.memberSince }}</span></span>
                             </div>
-                            <div class="flex  items-center gap-3 text-sm text-gray-600">
+                            <div class="flex  items-center gap-3 text-sm text-gray-600" [class.justify-center]="user.isAdmin">
                                 <span>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2l4 -4m6 2a9 9 0 1 1 -18 0a9 9 0 0 1 18 0z" />

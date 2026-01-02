@@ -50,16 +50,10 @@ export class AuthService {
         });
     }
 
-    getCurrentSession(): void {
-        this.http.get<ApiResponse<User>>(`${this.apiUrl}/me`, {
+    getCurrentSession() {
+        return this.http.get<ApiResponse<User>>(`${this.apiUrl}/me`, {
             withCredentials: true
-        }).subscribe({
-            next: (res) => {
-                this.currentUser = res.data;
-            }, error: (error) => {
-                console.error('Failed to fetch current session', error);
-            }
-        });
+        })
     }
 
     refresh(): Observable<void> {
