@@ -43,8 +43,8 @@ export const routes: Routes = [
                 data: { title: 'Servicios' }
             },
             {
-                path: 'clients',
-                data: { title: 'Clientes' },
+                path: 'agencies',
+                data: { title: 'Agencias' },
                 children: clientRoutes
             },
             {

@@ -11,22 +11,22 @@ export const clientRoutes: Routes = [
             {
                 path: "",
                 component: RetrieveClientsComponent,
-                data: { title: "Clientes" }
+                data: { title: "Agencias" }
             },
             {
                 path: "new",
                 component: AddClientFormComponent,
-                data: { title: "Nuevo Cliente" }
+                data: { title: "Nueva Agencia" }
             },
             {
                 path: ":id",
                 component: ShowClientDetails,
-                data: { title: "Detalle del Cliente" }
+                data: { title: "Detalle de la Agencia" }
             },
             {
                 path: ":id/edit",
                 component: ModifyClientFormComponent,
-                data: { title: "Editar Cliente" }
+                data: { title: "Editar Agencia" }
             }
         ]
     }

@@ -42,7 +42,7 @@ export class SidebarDashboard {
     authService = inject(AuthService);
 
     links: SidebarLink[] = [
-        { link: 'clients', name: 'Clientes', role: ['ADMIN'] },
+        { link: 'agencies', name: 'Agencias', role: ['ADMIN'] },
         { link: 'transport-providers', name: 'Proveedores de Transporte', role: ['ADMIN'] },
         { link: 'services', name: 'Servicios', role: ['AGENCY', 'TRANSPORT_PROVIDER'] },
         { link: 'vehicles', name: 'Vehículos', role: ['TRANSPORT_PROVIDER'] },

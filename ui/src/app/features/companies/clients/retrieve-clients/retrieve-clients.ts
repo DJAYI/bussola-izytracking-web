@@ -49,7 +49,7 @@ export class RetrieveClientsComponent implements OnInit {
     }
 
     onEdit(company: UserCompany): void {
-        this.router.navigate(['admin', 'companies', 'agencies', company.id, 'edit']);
+        this.router.navigate(['admin', 'agencies', company.id, 'edit']);
     }
 
     onDelete(company: UserCompany): void {

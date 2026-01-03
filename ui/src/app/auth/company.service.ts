@@ -69,4 +69,14 @@ export class CompanyService {
         const endpoint = companyType === 'AGENCY' ? 'agencies' : 'transport-providers';
         return this.httpClient.post<ApiResponse<UserCompany>>(`${this.apiUrl}${endpoint}`, payload);
     }
+
+    getCompanyById(companyType: string, id: string): Observable<ApiResponse<UserCompany>> {
+        const endpoint = companyType === 'AGENCY' ? 'agencies' : 'transport-providers';
+        return this.httpClient.get<ApiResponse<UserCompany>>(`${this.apiUrl}${endpoint}/${id}`);
+    }
+
+    updateCompanyById(companyType: string, id: string, payload: UpdateCompanyPayload): Observable<ApiResponse<UserCompany>> {
+        const endpoint = companyType === 'AGENCY' ? 'agencies' : 'transport-providers';
+        return this.httpClient.put<ApiResponse<UserCompany>>(`${this.apiUrl}${endpoint}/${id}`, payload);
+    }
 }
