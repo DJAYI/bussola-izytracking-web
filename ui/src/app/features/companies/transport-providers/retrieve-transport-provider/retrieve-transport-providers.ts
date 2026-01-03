@@ -49,7 +49,7 @@ export class RetrieveTransportProvidersComponent implements OnInit {
     }
 
     onEdit(company: UserCompany): void {
-        this.router.navigate(['admin', 'companies', 'transport-providers', company.id, 'edit']);
+        this.router.navigate(['admin', 'transport-providers', company.id, 'edit']);
     }
 
     onDelete(company: UserCompany): void {

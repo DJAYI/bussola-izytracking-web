@@ -6,6 +6,7 @@ import { ApiResponse } from "../utils/api-response.interface";
 import { User } from "./models/user.interface";
 import { UserCompany } from "./models/user-company.interface";
 import { PaginatedResponse, PaginationParams } from "../utils/paginated-response.interface";
+import { CreateCompanyRequest } from "./models/create-company.interface";
 
 export interface UpdateCompanyPayload {
     addressDetails: {
@@ -62,5 +63,10 @@ export class CompanyService {
                 sortDirection: params.sortDirection || 'asc'
             }
         });
+    }
+
+    createCompany(companyType: string, payload: CreateCompanyRequest): Observable<ApiResponse<UserCompany>> {
+        const endpoint = companyType === 'AGENCY' ? 'agencies' : 'transport-providers';
+        return this.httpClient.post<ApiResponse<UserCompany>>(`${this.apiUrl}${endpoint}`, payload);
     }
 }
