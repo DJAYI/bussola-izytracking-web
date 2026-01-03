@@ -24,4 +24,5 @@ export interface UserCompany {
     legalDocumentation: LegalDocumentation;
     address: Address;
     contact: Contact;
+    displayName: string;
 }

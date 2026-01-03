@@ -1,5 +1,5 @@
 import { Component, inject, signal } from "@angular/core";
-import { Router, RouterLink } from "@angular/router";
+import { Router, RouterLink, RouterLinkActive } from "@angular/router";
 import { AuthService } from "../../../../auth/auth,service";
 
 @Component({
@@ -59,20 +59,21 @@ import { AuthService } from "../../../../auth/auth,service";
 
                 @if (popoverOpen()) {
                     <aside
-                        class="animate-blurred-fade-in animate-duration-250 absolute bg-white shadow-lg rounded-lg border border-red-100 top-10 right-0 w-fit"
+                        class="animate-blurred-fade-in z-50 animate-duration-250 absolute bg-white shadow-lg rounded-lg border border-red-100 top-10 right-0 w-fit"
                         [id]="menuId"
                         role="menu"
                         aria-label="Menú de usuario"
                         (keyup.escape)="closePopover()"
                     >
-                        <ul class="flex flex-col [&>li]:flex [&>li]:items-center">
+                        <ul class="flex flex-col gap-1 [&>li]:flex [&>li]:items-center px-1 py-1">
                             <li>
                                 <a
                                     routerLink="/admin/profile"
                                     type="button"
                                     role="menuitem"
                                     class="w-full flex items-center text-left gap-2 cursor-pointer px-4 py-1.5 rounded-md hover:bg-red-100 hover:text-red-800 transition-all text-gray-700"
-                                >
+                                    [routerLinkActive]="'bg-neutral-300 text-black [&>svg]:stroke-black'"
+                                    >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 stroke-red-700"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
                                     <span>Perfil</span>
                 </a>
@@ -103,7 +104,7 @@ import { AuthService } from "../../../../auth/auth,service";
                 }
             </div>
             `,
-    imports: [RouterLink]
+    imports: [RouterLink, RouterLinkActive]
 })
 
 export class HeaderUserPopover {

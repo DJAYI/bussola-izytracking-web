@@ -1,4 +1,5 @@
 import { inject, Injectable } from "@angular/core";
+import { Router } from "@angular/router";
 import { User } from "./models/user.interface";
 import { HttpClient } from "@angular/common/http";
 import { LoginCredentials, LoginResponse } from "./models/login.interface";
@@ -16,9 +17,8 @@ export class AuthService {
     currentUser: User | null = null
     accessToken: string | null = null;
 
-    constructor() { }
-
     private http = inject(HttpClient);
+    private router = inject(Router);
 
 
     login(credentials: LoginCredentials) {
@@ -36,18 +36,19 @@ export class AuthService {
     }
 
     logout(): void {
+        this.currentUser = null;
+        this.accessToken = null;
+        globalThis.localStorage.removeItem('accessToken');
+
         this.http.post(`${this.apiUrl}/logout`, {}, {
             withCredentials: true
         }).subscribe({
-            next: () => {
-                this.currentUser = null;
-                this.accessToken = null;
-                globalThis.localStorage.removeItem('accessToken');
-            },
             error: (error) => {
                 console.error('Logout failed', error);
             }
         });
+
+        this.router.navigate(['/auth/login']);
     }
 
     getCurrentSession() {

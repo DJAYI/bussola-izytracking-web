@@ -5,6 +5,7 @@ import { environment } from "../../environments/environment.development";
 import { ApiResponse } from "../utils/api-response.interface";
 import { User } from "./models/user.interface";
 import { UserCompany } from "./models/user-company.interface";
+import { PaginatedResponse, PaginationParams } from "../utils/paginated-response.interface";
 
 export interface UpdateCompanyPayload {
     addressDetails: {
@@ -49,5 +50,17 @@ export class CompanyService {
                 )
             )
         );
+    }
+
+    getListOfCompanies(companyType: string, params: PaginationParams): Observable<ApiResponse<PaginatedResponse<UserCompany>>> {
+        const endpoint = companyType === 'AGENCY' ? 'agencies' : 'transport-providers';
+
+        return this.httpClient.get<ApiResponse<PaginatedResponse<UserCompany>>>(`${this.apiUrl}${endpoint}`, {
+            params: {
+                page: params.page,
+                size: params.size,
+                sortDirection: params.sortDirection || 'asc'
+            }
+        });
     }
 }
