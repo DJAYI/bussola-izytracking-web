@@ -1,4 +1,4 @@
-import { Component, inject, signal } from "@angular/core";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import { Router, RouterLink, RouterLinkActive } from "@angular/router";
 import { AuthService } from "../../../../auth/auth,service";
 
@@ -35,7 +35,7 @@ import { AuthService } from "../../../../auth/auth,service";
                         <path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
                     </svg>
 
-                    <span class="font-sans">Admin User</span>
+                    <span class="font-sans">{{ username() }}</span>
 
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -107,9 +107,18 @@ import { AuthService } from "../../../../auth/auth,service";
     imports: [RouterLink, RouterLinkActive]
 })
 
-export class HeaderUserPopover {
+export class HeaderUserPopover implements OnInit {
+    ngOnInit(): void {
+        this.authService.getCurrentSession().subscribe({
+            next: (res) => {
+                this.username.set(res.data.displayName || 'Usuario');
+            },
+        });
+    }
     private router = inject(Router);
     private authService = inject(AuthService);
+
+    username = signal<string>('Usuario');
 
     readonly menuId = "header-dashboard-user-menu";
     popoverOpen = signal(false);
@@ -126,4 +135,5 @@ export class HeaderUserPopover {
         this.authService.logout();
         this.router.navigate(['/auth/login']);
     }
+
 }
