@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from "@angular/core";
 import { form } from "@angular/forms/signals";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, RouterLink } from "@angular/router";
 import { CompanyService, UpdateCompanyPayload } from "../../company.service";
 import { UserCompany } from "../../../../auth/models/user-company.interface";
 import { UserRole } from "../../../../auth/models/role.enum";
 import { getDocumentTypeLabel } from "../../../../shared/constants/document-types.constant";
 import { getPersonTypeLabel } from "../../../../shared/constants/person-types.constant";
 import { CompanyEditFormModel, createEmptyCompanyEditFormModel } from "../../shared/models";
+import { copyToClipboard } from "../../../../utils/clipboard.util";
 import {
     LegalDocsSectionComponent,
     ContactSectionComponent,
@@ -111,6 +112,8 @@ import {
                             [stateField]="editForm.state"
                             [postalCodeField]="editForm.postalCode"
                             [countryField]="editForm.country"
+                            (stateReset)="onStateReset()"
+                            (cityReset)="onCityReset()"
                         />
                     </div>
                 </div>
@@ -125,7 +128,6 @@ import {
 export class ModifyTransportProviderFormComponent implements OnInit {
     private readonly companyService = inject(CompanyService);
     private readonly route = inject(ActivatedRoute);
-    private readonly router = inject(Router);
 
     protected readonly CompanyCardVariant = CompanyCardVariant;
 
@@ -223,10 +225,14 @@ export class ModifyTransportProviderFormComponent implements OnInit {
     }
 
     protected copyToClipboard(text: string): void {
-        navigator.clipboard.writeText(text).then(() => {
-            console.log('Texto copiado al portapapeles');
-        }).catch(err => {
-            console.error('Error al copiar: ', err);
-        });
+        copyToClipboard(text);
+    }
+
+    protected onStateReset(): void {
+        this.formModel.update(model => ({ ...model, state: '', city: '' }));
+    }
+
+    protected onCityReset(): void {
+        this.formModel.update(model => ({ ...model, city: '' }));
     }
 }

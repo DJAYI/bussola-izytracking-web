@@ -8,6 +8,7 @@ import { UserStatus } from "../../models/user-status.enum";
 import { getDocumentTypeLabel } from "../../../shared/constants/document-types.constant";
 import { getPersonTypeLabel } from "../../../shared/constants/person-types.constant";
 import { CompanyEditFormModel, createEmptyCompanyEditFormModel } from "../../../features/companies/shared/models";
+import { copyToClipboard } from "../../../utils/clipboard.util";
 import {
     LegalDocsSectionComponent,
     ContactSectionComponent,
@@ -138,6 +139,8 @@ import {
                         [stateField]="editForm.state"
                         [postalCodeField]="editForm.postalCode"
                         [countryField]="editForm.country"
+                        (stateReset)="onStateReset()"
+                        (cityReset)="onCityReset()"
                     />
                 </div>
                 }
@@ -267,11 +270,15 @@ export class ProfilePage implements OnInit {
         });
     }
 
-    copyToClipboard(text: string): void {
-        navigator.clipboard.writeText(text).then(() => {
-            console.log('Texto copiado al portapapeles');
-        }).catch(err => {
-            console.error('Error al copiar: ', err);
-        });
+    protected copyToClipboard(text: string): void {
+        copyToClipboard(text);
+    }
+
+    protected onStateReset(): void {
+        this.formModel.update(model => ({ ...model, state: '', city: '' }));
+    }
+
+    protected onCityReset(): void {
+        this.formModel.update(model => ({ ...model, city: '' }));
     }
 }
