@@ -13,7 +13,7 @@ import { PERSON_TYPES, PersonType } from "../../../shared/constants/person-types
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [ReactiveFormsModule],
     template: `
-        <div class="max-w-4xl mx-auto">
+        <div class="max-w-7xl mx-auto border border-gray-200 bg-white rounded-xl shadow-sm p-8 space-y-8">
             <div class="mb-6">
                 <h3 class="text-2xl font-bold text-gray-900">{{ title() }}</h3>
                 <p class="text-gray-500 mt-1">{{ description() }}</p>

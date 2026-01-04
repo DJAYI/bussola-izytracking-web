@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal } from "@angular/core";
-import { form, Field } from "@angular/forms/signals";
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from "@angular/core";
+import { form } from "@angular/forms/signals";
 import { User } from "../../models/user.interface";
 import { UserCompany } from "../../models/user-company.interface";
 import { CompanyService, UpdateCompanyPayload } from "../../company.service";
@@ -7,24 +7,20 @@ import { UserRole } from "../../models/role.enum";
 import { UserStatus } from "../../models/user-status.enum";
 import { getDocumentTypeLabel } from "../../../shared/constants/document-types.constant";
 import { getPersonTypeLabel } from "../../../shared/constants/person-types.constant";
-
-interface EditFormModel {
-    street: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-    email: string;
-    phoneNumber: string;
-}
+import { CompanyEditFormModel, createEmptyCompanyEditFormModel } from "../../../features/companies/shared/models";
+import {
+    LegalDocsSectionComponent,
+    ContactSectionComponent,
+    AddressSectionComponent
+} from "../../../features/companies/shared/components";
 
 @Component({
     selector: 'app-profile',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [Field],
+    imports: [LegalDocsSectionComponent, ContactSectionComponent, AddressSectionComponent],
     template: `
         @if (profile(); as user) {
-        <div class="p-8 max-w-7xl mx-auto w-full">
+        <div class="max-w-7xl mx-auto w-full">
             <div class="mb-8 flex items-center justify-between">
                 <div>
                     <h3 class="text-2xl font-bold text-gray-900">Información del Usuario</h3>
@@ -113,161 +109,36 @@ interface EditFormModel {
                 @if (!user.isAdmin) {
                 <div class="col-span-1 lg:col-span-2 space-y-6">
                     <!-- Legal Documentation -->
-                    <section class="bg-surface-light rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <h3 class="text-base font-semibold text-gray-800">Documentación Legal</h3>
-                        </div>
-                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Tipo de Persona</label>
-                                <div class="text-sm font-medium text-gray-900 bg-gray-50 px-3 py-2 rounded-md border border-gray-200">{{ user.personType }}</div>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Tipo de Documento</label>
-                                <div class="text-sm font-medium text-gray-900 bg-gray-50 px-3 py-2 rounded-md border border-gray-200">{{ user.documentType }}</div>
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Número de Documento</label>
-                                <div class="flex items-center justify-between text-sm font-medium text-gray-900 bg-gray-50 px-3 py-2 rounded-md border border-gray-200">
-                                    <span class="mt-1 font-sans font-semibold">{{ user.documentNumber }}</span>
-                                    <button
-                                        (click)="copyDocumentNumberToClipboard(user.documentNumber)"
-                                        type="button" 
-                                        class="text-gray-400 text-sm cursor-pointer p-2 border bg-gray-200 border-gray-300 rounded-lg hover:border-blue-400 hover:text-blue-600 transition-colors"
-                                        aria-label="Copiar número de documento">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+                    <app-legal-docs-section
+                        [personTypeLabel]="user.personType"
+                        [documentTypeLabel]="user.documentType"
+                        [documentNumber]="user.documentNumber"
+                        (copyRequested)="copyToClipboard($event)"
+                    />
 
                     <!-- Contact -->
-                    <section class="bg-surface-light rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                            </svg>
-                            <h3 class="text-base font-semibold text-gray-800">Contacto</h3>
-                        </div>
-                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Correo Electrónico</label>
-                                @if (isEditing()) {
-                                    <input 
-                                        type="email"
-                                        [field]="editForm.email"
-                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                        aria-label="Correo Electrónico"
-                                    />
-                                } @else {
-                                    <div class="flex items-center gap-2 text-sm text-gray-900">
-                                        {{ user.email }}
-                                    </div>
-                                }
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Número de Teléfono</label>
-                                @if (isEditing()) {
-                                    <input 
-                                        type="tel"
-                                        [field]="editForm.phoneNumber"
-                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                        aria-label="Número de Teléfono"
-                                    />
-                                } @else {
-                                    <div class="flex items-center gap-2 text-sm text-gray-900">
-                                        {{ user.phone }}
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </section>
+                    <app-contact-section
+                        [isEditing]="isEditing()"
+                        [email]="user.email"
+                        [phoneNumber]="user.phone"
+                        [emailField]="editForm.email"
+                        [phoneField]="editForm.phoneNumber"
+                    />
 
                     <!-- Address -->
-                    <section class="bg-surface-light rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <h3 class="text-base font-semibold text-gray-800">Dirección</h3>
-                        </div>
-                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="md:col-span-2">
-                                <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Calle / Dirección</label>
-                                @if (isEditing()) {
-                                    <input 
-                                        type="text"
-                                        [field]="editForm.street"
-                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                        aria-label="Calle / Dirección"
-                                    />
-                                } @else {
-                                    <p class="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2">{{ user.address }}</p>
-                                }
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Ciudad</label>
-                                @if (isEditing()) {
-                                    <input 
-                                        type="text"
-                                        [field]="editForm.city"
-                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                        aria-label="Ciudad"
-                                    />
-                                } @else {
-                                    <p class="text-sm text-gray-700">{{ user.city }}</p>
-                                }
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Estado / Departamento</label>
-                                @if (isEditing()) {
-                                    <input 
-                                        type="text"
-                                        [field]="editForm.state"
-                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                        aria-label="Estado / Departamento"
-                                    />
-                                } @else {
-                                    <p class="text-sm text-gray-700">{{ user.state }}</p>
-                                }
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Código Postal</label>
-                                @if (isEditing()) {
-                                    <input 
-                                        type="text"
-                                        [field]="editForm.postalCode"
-                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                        aria-label="Código Postal"
-                                    />
-                                } @else {
-                                    <p class="text-sm text-gray-700">{{ user.postalCode }}</p>
-                                }
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">País</label>
-                                @if (isEditing()) {
-                                    <input 
-                                        type="text"
-                                        [field]="editForm.country"
-                                        class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                        aria-label="País"
-                                    />
-                                } @else {
-                                    <p class="text-sm text-gray-700 flex items-center gap-2">
-                                        {{ user.country }}
-                                    </p>
-                                }
-                            </div>
-                        </div>
-                    </section>
+                    <app-address-section
+                        [isEditing]="isEditing()"
+                        [street]="user.address"
+                        [city]="user.city"
+                        [state]="user.state"
+                        [postalCode]="user.postalCode"
+                        [country]="user.country"
+                        [streetField]="editForm.street"
+                        [cityField]="editForm.city"
+                        [stateField]="editForm.state"
+                        [postalCodeField]="editForm.postalCode"
+                        [countryField]="editForm.country"
+                    />
                 </div>
                 }
             </div>
@@ -284,15 +155,7 @@ export class ProfilePage implements OnInit {
     protected readonly isEditing = signal(false);
     protected readonly isSaving = signal(false);
 
-    protected readonly formModel = signal<EditFormModel>({
-        street: '',
-        city: '',
-        state: '',
-        postalCode: '',
-        country: '',
-        email: '',
-        phoneNumber: ''
-    });
+    protected readonly formModel = signal<CompanyEditFormModel>(createEmptyCompanyEditFormModel());
 
     protected readonly editForm = form(this.formModel);
 
@@ -403,11 +266,11 @@ export class ProfilePage implements OnInit {
         });
     }
 
-    copyDocumentNumberToClipboard(documentNumber: string): void {
-        navigator.clipboard.writeText(documentNumber).then(() => {
-            console.log('Número de documento copiado al portapapeles');
+    copyToClipboard(text: string): void {
+        navigator.clipboard.writeText(text).then(() => {
+            console.log('Texto copiado al portapapeles');
         }).catch(err => {
-            console.error('Error al copiar el número de documento: ', err);
+            console.error('Error al copiar: ', err);
         });
     }
 }

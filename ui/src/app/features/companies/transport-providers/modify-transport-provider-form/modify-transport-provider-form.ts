@@ -1,33 +1,31 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from "@angular/core";
-import { form, Field } from "@angular/forms/signals";
+import { form } from "@angular/forms/signals";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { CompanyService, UpdateCompanyPayload } from "../../../../auth/company.service";
 import { UserCompany } from "../../../../auth/models/user-company.interface";
 import { UserRole } from "../../../../auth/models/role.enum";
 import { getDocumentTypeLabel } from "../../../../shared/constants/document-types.constant";
 import { getPersonTypeLabel } from "../../../../shared/constants/person-types.constant";
-
-interface EditFormModel {
-    street: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-    email: string;
-    phoneNumber: string;
-}
+import { CompanyEditFormModel, createEmptyCompanyEditFormModel } from "../../shared/models";
+import {
+    LegalDocsSectionComponent,
+    ContactSectionComponent,
+    AddressSectionComponent,
+    CompanyCardComponent,
+    CompanyCardVariant
+} from "../../shared/components";
 
 @Component({
     selector: "app-modify-transport-provider-form",
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [Field, RouterLink],
+    imports: [RouterLink, LegalDocsSectionComponent, ContactSectionComponent, AddressSectionComponent, CompanyCardComponent],
     template: `
         @if (isLoading()) {
-            <div class="p-8 max-w-7xl mx-auto w-full flex items-center justify-center">
+            <div class="max-w-7xl mx-auto w-full flex items-center justify-center">
                 <div class="text-gray-500">Cargando información...</div>
             </div>
         } @else if (company(); as companyData) {
-            <div class="p-8 max-w-7xl mx-auto w-full">
+            <div class="max-w-7xl mx-auto w-full">
                 <div class="mb-8 flex items-center justify-between">
                     <div>
                         <h3 class="text-2xl font-bold text-gray-900">Modificar Proveedor de Transporte</h3>
@@ -73,181 +71,47 @@ interface EditFormModel {
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Company Card -->
                     <div class="col-span-1">
-                        <div class="bg-surface-light rounded-xl shadow-sm border border-gray-200 p-6 text-center h-full">
-                            <div class="relative inline-block">
-                                <div class="w-32 h-32 rounded-full mx-auto border-4 border-white shadow-lg bg-blue-100 flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="size-16 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <h2 class="mt-4 text-xl font-bold text-gray-900">{{ companyData.displayName }}</h2>
-                            <p class="text-sm text-gray-500">{{ companyData.contact.email }}</p>
-                            <div class="mt-4 inline-flex px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                                Proveedor de Transporte
-                            </div>
-                        </div>
+                        <app-company-card
+                            [displayName]="companyData.displayName"
+                            [email]="companyData.contact.email"
+                            [variant]="CompanyCardVariant.TRANSPORT_PROVIDER"
+                        />
                     </div>
 
                     <!-- Info Cards -->
                     <div class="col-span-1 lg:col-span-2 space-y-6">
                         <!-- Legal Documentation (Read Only) -->
-                        <section class="bg-surface-light rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                <h3 class="text-base font-semibold text-gray-800">Documentación Legal</h3>
-                                <span class="ml-auto text-xs text-gray-400">(Solo lectura)</span>
-                            </div>
-                            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Tipo de Persona</label>
-                                    <div class="text-sm font-medium text-gray-900 bg-gray-50 px-3 py-2 rounded-md border border-gray-200">{{ personTypeLabel() }}</div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Tipo de Documento</label>
-                                    <div class="text-sm font-medium text-gray-900 bg-gray-50 px-3 py-2 rounded-md border border-gray-200">{{ documentTypeLabel() }}</div>
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Número de Documento</label>
-                                    <div class="flex items-center justify-between text-sm font-medium text-gray-900 bg-gray-50 px-3 py-2 rounded-md border border-gray-200">
-                                        <span class="mt-1 font-sans font-semibold">{{ companyData.legalDocumentation.documentNumber }}</span>
-                                        <button
-                                            (click)="copyToClipboard(companyData.legalDocumentation.documentNumber)"
-                                            type="button" 
-                                            class="text-gray-400 text-sm cursor-pointer p-2 border bg-gray-200 border-gray-300 rounded-lg hover:border-blue-400 hover:text-blue-600 transition-colors"
-                                            aria-label="Copiar número de documento">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+                        <app-legal-docs-section
+                            [personTypeLabel]="personTypeLabel()"
+                            [documentTypeLabel]="documentTypeLabel()"
+                            [documentNumber]="companyData.legalDocumentation.documentNumber"
+                            [showReadOnlyBadge]="true"
+                            (copyRequested)="copyToClipboard($event)"
+                        />
 
                         <!-- Contact (Editable) -->
-                        <section class="bg-surface-light rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                </svg>
-                                <h3 class="text-base font-semibold text-gray-800">Contacto</h3>
-                            </div>
-                            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Correo Electrónico</label>
-                                    @if (isEditing()) {
-                                        <input 
-                                            type="email"
-                                            [field]="editForm.email"
-                                            class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                            aria-label="Correo Electrónico"
-                                        />
-                                    } @else {
-                                        <div class="flex items-center gap-2 text-sm text-gray-900">
-                                            {{ companyData.contact.email }}
-                                        </div>
-                                    }
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Número de Teléfono</label>
-                                    @if (isEditing()) {
-                                        <input 
-                                            type="tel"
-                                            [field]="editForm.phoneNumber"
-                                            class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                            aria-label="Número de Teléfono"
-                                        />
-                                    } @else {
-                                        <div class="flex items-center gap-2 text-sm text-gray-900">
-                                            {{ companyData.contact.phoneNumber || companyData.contact.mobileNumber }}
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        </section>
+                        <app-contact-section
+                            [isEditing]="isEditing()"
+                            [email]="companyData.contact.email"
+                            [phoneNumber]="companyData.contact.phoneNumber || companyData.contact.mobileNumber || ''"
+                            [emailField]="editForm.email"
+                            [phoneField]="editForm.phoneNumber"
+                        />
 
                         <!-- Address (Editable) -->
-                        <section class="bg-surface-light rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                <h3 class="text-base font-semibold text-gray-800">Dirección</h3>
-                            </div>
-                            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="md:col-span-2">
-                                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Calle / Dirección</label>
-                                    @if (isEditing()) {
-                                        <input 
-                                            type="text"
-                                            [field]="editForm.street"
-                                            class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                            aria-label="Calle / Dirección"
-                                        />
-                                    } @else {
-                                        <p class="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2">{{ companyData.address.street }}</p>
-                                    }
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Ciudad</label>
-                                    @if (isEditing()) {
-                                        <input 
-                                            type="text"
-                                            [field]="editForm.city"
-                                            class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                            aria-label="Ciudad"
-                                        />
-                                    } @else {
-                                        <p class="text-sm text-gray-700">{{ companyData.address.city }}</p>
-                                    }
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Estado / Departamento</label>
-                                    @if (isEditing()) {
-                                        <input 
-                                            type="text"
-                                            [field]="editForm.state"
-                                            class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                            aria-label="Estado / Departamento"
-                                        />
-                                    } @else {
-                                        <p class="text-sm text-gray-700">{{ companyData.address.state }}</p>
-                                    }
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Código Postal</label>
-                                    @if (isEditing()) {
-                                        <input 
-                                            type="text"
-                                            [field]="editForm.postalCode"
-                                            class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                            aria-label="Código Postal"
-                                        />
-                                    } @else {
-                                        <p class="text-sm text-gray-700">{{ companyData.address.postalCode }}</p>
-                                    }
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">País</label>
-                                    @if (isEditing()) {
-                                        <input 
-                                            type="text"
-                                            [field]="editForm.country"
-                                            class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                                            aria-label="País"
-                                        />
-                                    } @else {
-                                        <p class="text-sm text-gray-700 flex items-center gap-2">
-                                            {{ companyData.address.country }}
-                                        </p>
-                                    }
-                                </div>
-                            </div>
-                        </section>
+                        <app-address-section
+                            [isEditing]="isEditing()"
+                            [street]="companyData.address.street"
+                            [city]="companyData.address.city"
+                            [state]="companyData.address.state"
+                            [postalCode]="companyData.address.postalCode"
+                            [country]="companyData.address.country"
+                            [streetField]="editForm.street"
+                            [cityField]="editForm.city"
+                            [stateField]="editForm.state"
+                            [postalCodeField]="editForm.postalCode"
+                            [countryField]="editForm.country"
+                        />
                     </div>
                 </div>
             </div>
@@ -263,6 +127,8 @@ export class ModifyTransportProviderFormComponent implements OnInit {
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
 
+    protected readonly CompanyCardVariant = CompanyCardVariant;
+
     protected readonly company = signal<UserCompany | null>(null);
     protected readonly isLoading = signal(true);
     protected readonly isEditing = signal(false);
@@ -270,15 +136,7 @@ export class ModifyTransportProviderFormComponent implements OnInit {
 
     private companyId = '';
 
-    protected readonly formModel = signal<EditFormModel>({
-        street: '',
-        city: '',
-        state: '',
-        postalCode: '',
-        country: '',
-        email: '',
-        phoneNumber: ''
-    });
+    protected readonly formModel = signal<CompanyEditFormModel>(createEmptyCompanyEditFormModel());
 
     protected readonly editForm = form(this.formModel);
 
