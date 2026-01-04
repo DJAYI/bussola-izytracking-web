@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { Field } from '@angular/forms/signals';
+import { Field, FieldTree } from '@angular/forms/signals';
 
 /**
  * Reusable component for displaying and editing contact information section.
@@ -19,31 +19,31 @@ import { Field } from '@angular/forms/signals';
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Correo Electrónico</label>
+                    <label for="contact-email" class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Correo Electrónico</label>
                     @if (isEditing()) {
                         <input 
+                            id="contact-email"
                             type="email"
-                            [field]="emailField()"
+                            [field]="emailField()!"
                             class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                            aria-label="Correo Electrónico"
                         />
                     } @else {
-                        <div class="flex items-center gap-2 text-sm text-gray-900">
+                        <div id="contact-email" class="flex items-center gap-2 text-sm text-gray-900">
                             {{ email() }}
                         </div>
                     }
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Número de Teléfono</label>
+                    <label for="contact-phone" class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Número de Teléfono</label>
                     @if (isEditing()) {
                         <input 
+                            id="contact-phone"
                             type="tel"
-                            [field]="phoneField()"
+                            [field]="phoneField()!"
                             class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                            aria-label="Número de Teléfono"
                         />
                     } @else {
-                        <div class="flex items-center gap-2 text-sm text-gray-900">
+                        <div id="contact-phone" class="flex items-center gap-2 text-sm text-gray-900">
                             {{ phoneNumber() }}
                         </div>
                     }
@@ -63,8 +63,8 @@ export class ContactSectionComponent {
     readonly phoneNumber = input('');
 
     /** Form field for email (edit mode) - should be editForm.email */
-    readonly emailField = input.required<any>();
+    readonly emailField = input<FieldTree<string, string>>();
 
     /** Form field for phone (edit mode) - should be editForm.phoneNumber */
-    readonly phoneField = input.required<any>();
+    readonly phoneField = input<FieldTree<string, string>>();
 }

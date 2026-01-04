@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit } from "@angular/core";
+import { Component, inject, input } from "@angular/core";
 import { SidebarNavItem } from "./nav-item/sidebar-nav-item";
 import { AuthService } from "../../../auth/auth,service";
 import { UserRole } from "../../../auth/models/role.enum";
@@ -12,7 +12,7 @@ interface SidebarLink {
 }
 
 @Component({
-    selector: 'sidebar-dashboard',
+    selector: 'app-sidebar-dashboard',
     template: `<aside [class]="open() ? '' : '-translate-x-full'" class="w-64 top-0 min-h-screen fixed   transition-all duration-300 ease-in-out overflow-hidden flex flex-col h-full z-50 rounded-r-md bg-red-50 outline outline-red-300  ">
             <!-- Logo Section -->
             <div class="px-4 py-6 ">
@@ -33,7 +33,7 @@ interface SidebarLink {
 
                     @for (link of links; track $index) {
                         <li>
-                            <sidebar-nav-item [link]="link.link" [name]="link.name" [icon]="link.icon" />
+                            <app-sidebar-nav-item [link]="link.link" [name]="link.name" [icon]="link.icon" />
                         </li>
                     }
                 </ul>
@@ -58,7 +58,8 @@ export class SidebarDashboard {
 
     constructor() {
         this.authService.getCurrentSession().subscribe({
-            next: (res) => {
+            next: () => {
+                // TODO: Filter links based on user role
                 // this.links = this.links.filter(link => link.roles.includes(res.data.role));
             },
             error: (error) => {

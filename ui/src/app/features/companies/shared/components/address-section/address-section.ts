@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { Field } from '@angular/forms/signals';
+import { Field, FieldTree } from '@angular/forms/signals';
 
 /**
  * Reusable component for displaying and editing address information section.
@@ -20,68 +20,68 @@ import { Field } from '@angular/forms/signals';
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Calle / Dirección</label>
+                    <label for="address-street" class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Calle / Dirección</label>
                     @if (isEditing()) {
                         <input 
+                            id="address-street"
                             type="text"
-                            [field]="streetField()"
+                            [field]="streetField()!"
                             class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                            aria-label="Calle / Dirección"
                         />
                     } @else {
-                        <p class="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2">{{ street() }}</p>
+                        <p id="address-street" class="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2">{{ street() }}</p>
                     }
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Ciudad</label>
+                    <label for="address-city" class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Ciudad</label>
                     @if (isEditing()) {
                         <input 
+                            id="address-city"
                             type="text"
-                            [field]="cityField()"
+                            [field]="cityField()!"
                             class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                            aria-label="Ciudad"
                         />
                     } @else {
-                        <p class="text-sm text-gray-700">{{ city() }}</p>
+                        <p id="address-city" class="text-sm text-gray-700">{{ city() }}</p>
                     }
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Estado / Departamento</label>
+                    <label for="address-state" class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Estado / Departamento</label>
                     @if (isEditing()) {
                         <input 
+                            id="address-state"
                             type="text"
-                            [field]="stateField()"
+                            [field]="stateField()!"
                             class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                            aria-label="Estado / Departamento"
                         />
                     } @else {
-                        <p class="text-sm text-gray-700">{{ state() }}</p>
+                        <p id="address-state" class="text-sm text-gray-700">{{ state() }}</p>
                     }
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Código Postal</label>
+                    <label for="address-postal-code" class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Código Postal</label>
                     @if (isEditing()) {
                         <input 
+                            id="address-postal-code"
                             type="text"
-                            [field]="postalCodeField()"
+                            [field]="postalCodeField()!"
                             class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                            aria-label="Código Postal"
                         />
                     } @else {
-                        <p class="text-sm text-gray-700">{{ postalCode() }}</p>
+                        <p id="address-postal-code" class="text-sm text-gray-700">{{ postalCode() }}</p>
                     }
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">País</label>
+                    <label for="address-country" class="block text-xs font-bold text-red-800 uppercase tracking-wider mb-1">País</label>
                     @if (isEditing()) {
                         <input 
+                            id="address-country"
                             type="text"
-                            [field]="countryField()"
+                            [field]="countryField()!"
                             class="w-full text-sm font-medium text-gray-900 bg-white px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                            aria-label="País"
                         />
                     } @else {
-                        <p class="text-sm text-gray-700 flex items-center gap-2">{{ country() }}</p>
+                        <p id="address-country" class="text-sm text-gray-700 flex items-center gap-2">{{ country() }}</p>
                     }
                 </div>
             </div>
@@ -100,9 +100,9 @@ export class AddressSectionComponent {
     readonly country = input('');
 
     // Edit mode form fields
-    readonly streetField = input.required<any>();
-    readonly cityField = input.required<any>();
-    readonly stateField = input.required<any>();
-    readonly postalCodeField = input.required<any>();
-    readonly countryField = input.required<any>();
+    readonly streetField = input<FieldTree<string, string>>();
+    readonly cityField = input<FieldTree<string, string>>();
+    readonly stateField = input<FieldTree<string, string>>();
+    readonly postalCodeField = input<FieldTree<string, string>>();
+    readonly countryField = input<FieldTree<string, string>>();
 }

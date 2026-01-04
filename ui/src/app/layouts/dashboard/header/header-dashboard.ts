@@ -4,7 +4,7 @@ import { HeaderUserPopover } from "./header-user-popover/header-user-popover";
 import { activeRouteTitle } from "../../../utils/active-route-title";
 
 @Component({
-    selector: "header-dashboard",
+    selector: "app-header-dashboard",
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <header
@@ -48,7 +48,7 @@ import { activeRouteTitle } from "../../../utils/active-route-title";
                 <h1 class="text-2xl font-semibold text-gray-800">{{ title() }}</h1>
             </div>
 
-            <header-user-popover></header-user-popover>
+            <app-header-user-popover></app-header-user-popover>
         </header>
     `,
     imports: [HeaderUserPopover],

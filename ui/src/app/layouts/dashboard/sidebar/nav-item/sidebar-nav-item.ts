@@ -3,7 +3,7 @@ import { RouterLink, RouterLinkActive } from "@angular/router";
 import { IconComponent, IconName } from "../../../../shared/components/icon";
 
 @Component({
-    selector: 'sidebar-nav-item',
+    selector: 'app-sidebar-nav-item',
     template: `
         <a
             [routerLink]="link()"

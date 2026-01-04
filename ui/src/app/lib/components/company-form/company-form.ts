@@ -117,7 +117,7 @@ import { PERSON_TYPES, PersonType } from "../../../shared/constants/person-types
                                 formControlName="documentType"
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-white"
                             >
-                            @if (form.get('legalDocumentationDetails.personType')?.value == null) {
+                            @if (form.get('legalDocumentationDetails.personType')?.value === null) {
                                 <option disabled>Seleccione un tipo de persona primero</option>
                             } @else {
                                     <option value="" disabled>Seleccione...</option>

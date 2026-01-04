@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 
 @Component({
-    selector: 'app-pagination',
-    template: `
+  selector: 'app-pagination',
+  template: `
     @if (totalElements() > 0) {
       <nav
         class="flex items-center justify-between gap-4 py-4 flex-wrap"
@@ -122,73 +122,73 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
   `,
 })
 export class Pagination {
-    currentPage = input.required<number>();
-    pageSize = input.required<number>();
-    totalElements = input.required<number>();
-    totalPages = input.required<number>();
-    isFirst = input.required<boolean>();
-    isLast = input.required<boolean>();
-    pageSizeOptions = input<number[]>([10, 25, 50, 100]);
+  currentPage = input.required<number>();
+  pageSize = input.required<number>();
+  totalElements = input.required<number>();
+  totalPages = input.required<number>();
+  isFirst = input.required<boolean>();
+  isLast = input.required<boolean>();
+  pageSizeOptions = input<number[]>([10, 25, 50, 100]);
 
-    pageChange = output<number>();
-    pageSizeChange = output<number>();
+  pageChange = output<number>();
+  pageSizeChange = output<number>();
 
-    startItem = computed(() => {
-        if (this.totalElements() === 0) return 0;
-        return this.currentPage() * this.pageSize() + 1;
-    });
+  startItem = computed(() => {
+    if (this.totalElements() === 0) return 0;
+    return this.currentPage() * this.pageSize() + 1;
+  });
 
-    endItem = computed(() => {
-        const end = (this.currentPage() + 1) * this.pageSize();
-        return Math.min(end, this.totalElements());
-    });
+  endItem = computed(() => {
+    const end = (this.currentPage() + 1) * this.pageSize();
+    return Math.min(end, this.totalElements());
+  });
 
-    visiblePages = computed(() => {
-        const total = this.totalPages();
-        const current = this.currentPage();
-        const pages: number[] = [];
+  visiblePages = computed(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const pages: number[] = [];
 
-        if (total <= 7) {
-            for (let i = 0; i < total; i++) {
-                pages.push(i);
-            }
-            return pages;
-        }
-
-        // Always show first page
-        pages.push(0);
-
-        if (current > 2) {
-            pages.push(-1); // ellipsis
-        }
-
-        // Pages around current
-        const start = Math.max(1, current - 1);
-        const end = Math.min(total - 2, current + 1);
-
-        for (let i = start; i <= end; i++) {
-            pages.push(i);
-        }
-
-        if (current < total - 3) {
-            pages.push(-1); // ellipsis
-        }
-
-        // Always show last page
-        pages.push(total - 1);
-
-        return pages;
-    });
-
-    goToPage(page: number): void {
-        if (page >= 0 && page < this.totalPages() && page !== this.currentPage()) {
-            this.pageChange.emit(page);
-        }
+    if (total <= 7) {
+      for (let i = 0; i < total; i++) {
+        pages.push(i);
+      }
+      return pages;
     }
 
-    onPageSizeChange(event: Event): void {
-        const select = event.target as HTMLSelectElement;
-        const newSize = parseInt(select.value, 10);
-        this.pageSizeChange.emit(newSize);
+    // Always show first page
+    pages.push(0);
+
+    if (current > 2) {
+      pages.push(-1); // ellipsis
     }
+
+    // Pages around current
+    const start = Math.max(1, current - 1);
+    const end = Math.min(total - 2, current + 1);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (current < total - 3) {
+      pages.push(-1); // ellipsis
+    }
+
+    // Always show last page
+    pages.push(total - 1);
+
+    return pages;
+  });
+
+  goToPage(page: number): void {
+    if (page >= 0 && page < this.totalPages() && page !== this.currentPage()) {
+      this.pageChange.emit(page);
+    }
+  }
+
+  onPageSizeChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const newSize = parseInt(select.value, 10);
+    this.pageSizeChange.emit(newSize);
+  }
 }
