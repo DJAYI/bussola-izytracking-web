@@ -44,6 +44,7 @@ export function roleGuard(allowedRoles: UserRole[]): CanActivateFn {
             catchError(() => {
                 // If session check fails, redirect to login
                 router.navigate(['/auth/login']);
+                authService.logout();
                 return of(false);
             })
         );
@@ -78,12 +79,17 @@ export function roleMatchGuard(allowedRoles: UserRole[]): CanMatchFn {
                     return true;
                 }
 
+                if (UserRole.ADMIN === userRole) {
+                    router.navigate(['/admin', 'agencies']);
+                    return false;
+                }
+
                 console.warn(`Route match denied. User role "${userRole}" is not in allowed roles: [${allowedRoles.join(', ')}]`);
-                router.navigate(['/admin']);
+                authService.logout();
                 return false;
             }),
             catchError(() => {
-                router.navigate(['/auth/login']);
+                authService.logout();
                 return of(false);
             })
         );

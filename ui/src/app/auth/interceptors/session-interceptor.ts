@@ -1,42 +1,48 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 import { AuthService } from '../auth,service';
 
-const AUTH_SKIP_URLS = ['/auth/login', '/auth/refresh', '/auth/logout', '/auth/register'];
+let isRefreshing = false;
+const refresh$ = new BehaviorSubject<boolean>(false);
+const AUTH_URLS = ['/auth/login', '/auth/logout', '/auth/refresh', '/auth/register', '/auth/me'];
 
 export const sessionInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
+  const authReq = req.clone({ withCredentials: true });
 
-  const authReq = req.clone({
-    withCredentials: true,
-  });
+  if (AUTH_URLS.some(url => req.url.includes(url))) {
+    return next(authReq);
+  }
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      const shouldSkipRefresh = AUTH_SKIP_URLS.some((url) => req.url.includes(url));
+      if (error.status !== 401) return throwError(() => error);
 
-      if (error.status === 401 && !shouldSkipRefresh) {
-        return authService.refresh().pipe(
-          switchMap(() => {
-            const retryReq = req.clone({
-              withCredentials: true,
-            });
-            return next(retryReq);
-          }),
-          catchError((refreshError) => {
-            authService.logout();
-            return throwError(() => refreshError);
-          })
+      if (isRefreshing) {
+        return refresh$.pipe(
+          filter(Boolean),
+          take(1),
+          switchMap(() => next(req.clone({ withCredentials: true })))
         );
       }
 
-      // Si es 401 en login/refresh/logout, redirigir al login
-      if (error.status === 401 && shouldSkipRefresh && !req.url.includes('/auth/login')) {
-        authService.logout();
-      }
+      isRefreshing = true;
+      refresh$.next(false);
 
-      return throwError(() => error);
+      return authService.refresh().pipe(
+        switchMap(() => {
+          isRefreshing = false;
+          refresh$.next(true);
+          return next(req.clone({ withCredentials: true }));
+        }),
+        catchError(err => {
+          isRefreshing = false;
+          refresh$.next(false);
+          authService.logout();
+          return throwError(() => err);
+        })
+      );
     })
   );
 };

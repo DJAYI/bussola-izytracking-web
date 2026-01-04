@@ -1,11 +1,11 @@
 import { inject, Injectable } from "@angular/core";
-import { Router } from "@angular/router";
 import { User } from "./models/user.interface";
 import { HttpClient } from "@angular/common/http";
 import { LoginCredentials, LoginResponse } from "./models/login.interface";
 import { environment } from "../../environments/environment.development";
 import { Observable } from "rxjs";
 import { ApiResponse } from "../utils/api-response.interface";
+import { Router } from "@angular/router";
 
 @Injectable({
     providedIn: 'root'
@@ -14,8 +14,6 @@ import { ApiResponse } from "../utils/api-response.interface";
 export class AuthService {
     apiUrl = `${environment.apiUrl}auth`;
 
-    currentUser: User | null = null
-    accessToken: string | null = null;
 
     private http = inject(HttpClient);
     private router = inject(Router);
@@ -29,19 +27,19 @@ export class AuthService {
 
 
     logout(): void {
-        this.currentUser = null;
-        this.accessToken = null;
-        globalThis.localStorage.removeItem('accessToken');
 
         this.http.post(`${this.apiUrl}/logout`, {}, {
             withCredentials: true
         }).subscribe({
+            next: () => {
+                this.router.navigate(['/auth/login']);
+            },
             error: (error) => {
+                this.router.navigate(['/auth/login']);
                 console.error('Logout failed', error);
             }
         });
 
-        this.router.navigate(['/auth/login']);
     }
 
     getCurrentSession() {

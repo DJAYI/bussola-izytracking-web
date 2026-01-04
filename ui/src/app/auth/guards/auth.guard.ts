@@ -17,20 +17,18 @@ import { AuthService } from '../auth,service';
  */
 export const authGuard: CanActivateFn = () => {
     const authService = inject(AuthService);
-    const router = inject(Router);
 
     // Validate the session with the server
     return authService.getCurrentSession().pipe(
         map(response => {
             if (response.data) {
-                authService.currentUser = response.data;
                 return true;
             }
-            router.navigate(['/auth/login']);
+            authService.logout();
             return false;
         }),
         catchError(() => {
-            router.navigate(['/auth/login']);
+            authService.logout();
             return of(false);
         })
     );

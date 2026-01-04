@@ -9,7 +9,7 @@ import { sessionInterceptor } from './auth/interceptors/session-interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes, withViewTransitions(), withComponentInputBinding()),
+    provideRouter(routes, withComponentInputBinding()),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch(), withInterceptors([sessionInterceptor]))
   ]
