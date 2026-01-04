@@ -15,6 +15,7 @@ import {
     CompanyCardComponent,
     CompanyCardVariant
 } from "../../shared/components";
+import { AuthService } from "../../../../auth/auth,service";
 
 @Component({
     selector: "app-modify-transport-provider-form",
@@ -74,7 +75,7 @@ import {
                     <div class="col-span-1">
                         <app-company-card
                             [displayName]="companyData.displayName"
-                            [email]="companyData.contact.email"
+                            [email]="userEmail()"
                             [variant]="CompanyCardVariant.TRANSPORT_PROVIDER"
                         />
                     </div>
@@ -128,6 +129,8 @@ import {
 export class ModifyTransportProviderFormComponent implements OnInit {
     private readonly companyService = inject(CompanyService);
     private readonly route = inject(ActivatedRoute);
+    private readonly authService = inject(AuthService);
+    protected readonly userEmail = signal<string>('');
 
     protected readonly CompanyCardVariant = CompanyCardVariant;
 
@@ -165,6 +168,12 @@ export class ModifyTransportProviderFormComponent implements OnInit {
         this.companyService.getCompanyById(UserRole.TRANSPORT_PROVIDER, this.companyId).subscribe({
             next: ({ data: companyData }) => {
                 this.company.set(companyData);
+                this.authService.getUsernameByUserId(companyData.userId).subscribe({
+                    next: ({ data }) => {
+                        this.userEmail.set(data);
+                    }
+                });
+
                 this.isLoading.set(false);
             },
             error: (err) => {
