@@ -27,13 +27,6 @@ export class AuthService {
         })
     }
 
-    getAccessToken(): string | null {
-        return globalThis.localStorage.getItem('accessToken');
-    }
-
-    setAccessToken(token: string): void {
-        globalThis.localStorage.setItem('accessToken', token);
-    }
 
     logout(): void {
         this.currentUser = null;

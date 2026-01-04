@@ -67,7 +67,6 @@ export class LoginPage {
             this.authService.login(this.credentials()).subscribe({
                 next: (response) => {
                     console.log('Login successful', response);
-                    this.authService.setAccessToken(response.data.accessToken);
                     this.authService.getCurrentSession();
 
                     this.router.navigate(['/admin']);
