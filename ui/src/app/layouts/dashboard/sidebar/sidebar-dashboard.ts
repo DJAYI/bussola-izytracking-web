@@ -58,9 +58,9 @@ export class SidebarDashboard {
 
     constructor() {
         this.authService.getCurrentSession().subscribe({
-            next: () => {
+            next: (res) => {
                 // TODO: Filter links based on user role
-                // this.links = this.links.filter(link => link.roles.includes(res.data.role));
+                this.links = this.links.filter(link => link.roles.includes(res.data.role));
             },
             error: (error) => {
                 console.error('Failed to filter sidebar links based on user role', error);
