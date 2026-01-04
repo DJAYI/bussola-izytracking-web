@@ -119,7 +119,7 @@ import {
                     <!-- Contact -->
                     <app-contact-section
                         [isEditing]="isEditing()"
-                        [email]="user.email"
+                        [email]="user.contactEmail"
                         [phoneNumber]="user.phone"
                         [emailField]="editForm.email"
                         [phoneField]="editForm.phoneNumber"
@@ -189,6 +189,7 @@ export class ProfilePage implements OnInit {
             state: company?.address?.state ?? '',
             postalCode: company?.address?.postalCode ?? '',
             country: company?.address?.country ?? '',
+            contactEmail: company?.contact?.email ?? ''
         };
     });
 
