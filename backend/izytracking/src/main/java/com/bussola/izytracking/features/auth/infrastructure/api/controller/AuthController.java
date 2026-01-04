@@ -55,6 +55,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginUserCommand command,
             HttpServletResponse response) {
+
+        clearCookie(response, "access_token");
+        clearCookie(response, "refresh_token");
+
         LoginResponse loginResponse = loginUserUsecase.execute(command);
 
         setCookie(response, "access_token", loginResponse.accessToken(), accessTokenExpirationMillis);
