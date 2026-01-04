@@ -10,7 +10,7 @@ import { Field, FieldTree } from '@angular/forms/signals';
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [Field],
     template: `
-        <section class="bg-surface-light rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <section class="bg-surface-light rounded-xl border border-gray-200 overflow-hidden">
             <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
