@@ -15,7 +15,7 @@ public class GetUsernameByUserIdUsecase {
 
     public String execute(GetUsernameByUserIdQuery query) {
         return userRepository.findById(query.userId())
-                .map(user -> user.getDisplayName())
+                .map(user -> user.getEmail())
                 .orElse(null);
     }
 }

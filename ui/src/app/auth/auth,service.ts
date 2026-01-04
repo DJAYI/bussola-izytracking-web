@@ -53,4 +53,10 @@ export class AuthService {
             withCredentials: true
         });
     }
+
+    getUsernameByUserId(userId: string): Observable<ApiResponse<string>> {
+        return this.http.get<ApiResponse<string>>(`${environment.apiUrl}users/${userId}/username`, {
+            withCredentials: true
+        });
+    }
 }

@@ -26,7 +26,7 @@ public class UserController {
     @GetMapping("/{id}/username")
     public ApiResponse<String> getUsernameByUserId(@PathVariable("id") UUID userId) {
         // Implementation to get username by user ID
-        return ApiResponse.success(getUsernameByUserIdUsecase.execute(
+        return ApiResponse.success("Username retrieved successfully", getUsernameByUserIdUsecase.execute(
                 new GetUsernameByUserIdQuery(userId)));
     }
 
