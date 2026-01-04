@@ -7,11 +7,13 @@ import { UserRole } from '../models/role.enum';
 /**
  * Guard that checks if the user has the required role(s) to access a route.
  * 
+ * Note: The session interceptor handles token refresh automatically.
+ * If refresh fails after retries, the interceptor will logout.
+ * 
  * @param allowedRoles - Array of roles that are allowed to access the route
  * @returns CanActivateFn that checks user role against allowed roles
  * 
  * @example
- * // In routes configuration:
  * {
  *   path: 'agencies',
  *   canActivate: [roleGuard([UserRole.ADMIN])],
@@ -31,20 +33,19 @@ export function roleGuard(allowedRoles: UserRole[]): CanActivateFn {
                     return true;
                 }
 
-                if (UserRole.ADMIN === userRole) {
-                    router.navigate(['/admin', 'agencies']);
-                    return false;
-                }
-
-                // Redirect to appropriate page based on role
+                // User doesn't have required role - redirect to their default route
                 console.warn(`Access denied. User role "${userRole}" is not in allowed roles: [${allowedRoles.join(', ')}]`);
-                router.navigate(['/admin']);
+
+                if (userRole === UserRole.ADMIN) {
+                    router.navigate(['/admin', 'agencies']);
+                } else {
+                    router.navigate(['/admin', 'services']);
+                }
                 return false;
             }),
             catchError(() => {
-                // If session check fails, redirect to login
+                // Interceptor already handled logout after failed refresh retries
                 router.navigate(['/auth/login']);
-                authService.logout();
                 return of(false);
             })
         );
@@ -55,11 +56,12 @@ export function roleGuard(allowedRoles: UserRole[]): CanActivateFn {
  * Guard that checks if the user has the required role(s) before loading a route module.
  * Use this for lazy-loaded routes to prevent module loading for unauthorized users.
  * 
+ * Note: The session interceptor handles token refresh automatically.
+ * 
  * @param allowedRoles - Array of roles that are allowed to load the route
  * @returns CanMatchFn that checks user role against allowed roles
  * 
  * @example
- * // In routes configuration with lazy loading:
  * {
  *   path: 'agencies',
  *   canMatch: [roleMatchGuard([UserRole.ADMIN])],
@@ -79,17 +81,18 @@ export function roleMatchGuard(allowedRoles: UserRole[]): CanMatchFn {
                     return true;
                 }
 
-                if (UserRole.ADMIN === userRole) {
-                    router.navigate(['/admin', 'agencies']);
-                    return false;
-                }
-
                 console.warn(`Route match denied. User role "${userRole}" is not in allowed roles: [${allowedRoles.join(', ')}]`);
-                authService.logout();
+
+                if (userRole === UserRole.ADMIN) {
+                    router.navigate(['/admin', 'agencies']);
+                } else {
+                    router.navigate(['/admin', 'services']);
+                }
                 return false;
             }),
             catchError(() => {
-                authService.logout();
+                // Interceptor already handled logout after failed refresh retries
+                router.navigate(['/auth/login']);
                 return of(false);
             })
         );

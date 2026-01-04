@@ -7,8 +7,11 @@ import { AuthService } from '../auth,service';
  * Guard that checks if the user is authenticated.
  * Redirects to login page if not authenticated.
  * 
+ * Note: The session interceptor handles token refresh automatically.
+ * If refresh fails after retries, the interceptor will logout and this
+ * guard will receive an error, redirecting to login.
+ * 
  * @example
- * // In routes configuration:
  * {
  *   path: 'admin',
  *   canActivate: [authGuard],
@@ -17,18 +20,13 @@ import { AuthService } from '../auth,service';
  */
 export const authGuard: CanActivateFn = () => {
     const authService = inject(AuthService);
+    const router = inject(Router);
 
-    // Validate the session with the server
     return authService.getCurrentSession().pipe(
-        map(response => {
-            if (response.data) {
-                return true;
-            }
-            authService.logout();
-            return false;
-        }),
+        map(response => !!response.data),
         catchError(() => {
-            authService.logout();
+            // Interceptor already handled logout after failed refresh retries
+            router.navigate(['/auth/login']);
             return of(false);
         })
     );
@@ -36,10 +34,9 @@ export const authGuard: CanActivateFn = () => {
 
 /**
  * Guard that prevents authenticated users from accessing public routes (like login).
- * Redirects to dashboard if already authenticated.
+ * Redirects to appropriate dashboard based on user role.
  * 
  * @example
- * // In routes configuration:
  * {
  *   path: 'login',
  *   canActivate: [publicGuard],
@@ -53,8 +50,13 @@ export const publicGuard: CanActivateFn = () => {
     return authService.getCurrentSession().pipe(
         map(response => {
             if (response.data) {
-                // User is authenticated, redirect to dashboard
-                router.navigate(['/admin']);
+                // User is authenticated, redirect based on role
+                const role = response.data.role;
+                if (role === 'ADMIN') {
+                    router.navigate(['/admin', 'agencies']);
+                } else {
+                    router.navigate(['/admin', 'services']);
+                }
                 return false;
             }
             return true;

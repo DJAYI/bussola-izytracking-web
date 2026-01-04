@@ -3,49 +3,53 @@ import { User } from "./models/user.interface";
 import { HttpClient } from "@angular/common/http";
 import { LoginCredentials, LoginResponse } from "./models/login.interface";
 import { environment } from "../../environments/environment.development";
-import { Observable } from "rxjs";
+import { Observable, tap } from "rxjs";
 import { ApiResponse } from "../utils/api-response.interface";
 import { Router } from "@angular/router";
 
 @Injectable({
     providedIn: 'root'
 })
-
 export class AuthService {
-    apiUrl = `${environment.apiUrl}auth`;
-
-
-    private http = inject(HttpClient);
-    private router = inject(Router);
-
+    private readonly apiUrl = `${environment.apiUrl}auth`;
+    private readonly http = inject(HttpClient);
+    private readonly router = inject(Router);
 
     login(credentials: LoginCredentials) {
         return this.http.post<ApiResponse<LoginResponse>>(`${this.apiUrl}/login`, credentials, {
             withCredentials: true
-        })
+        });
     }
 
-
+    /**
+     * Logs out the user and redirects to login page.
+     * Use this for user-initiated logout.
+     */
     logout(): void {
-
-        this.http.post(`${this.apiUrl}/logout`, {}, {
-            withCredentials: true
-        }).subscribe({
-            next: () => {
-                this.router.navigate(['/auth/login']);
-            },
-            error: (error) => {
-                this.router.navigate(['/auth/login']);
-                console.error('Logout failed', error);
-            }
+        this.clearSession().subscribe({
+            complete: () => this.router.navigate(['/auth/login']),
+            error: () => this.router.navigate(['/auth/login'])
         });
+    }
 
+    /**
+     * Clears the session without redirecting.
+     * Used by the interceptor when refresh token expires.
+     */
+    clearSession(): Observable<void> {
+        return this.http.post<void>(`${this.apiUrl}/logout`, {}, {
+            withCredentials: true
+        }).pipe(
+            tap({
+                error: (error) => console.error('Logout request failed:', error)
+            })
+        );
     }
 
     getCurrentSession() {
         return this.http.get<ApiResponse<User>>(`${this.apiUrl}/me`, {
             withCredentials: true
-        })
+        });
     }
 
     refresh(): Observable<void> {
