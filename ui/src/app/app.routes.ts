@@ -5,6 +5,7 @@ import { clientRoutes } from './features/companies/clients/companies-clients.rou
 import { transportProvidersRoutes } from './features/companies/transport-providers/companies-transport-providers.routes';
 import { LoginPage } from './auth/pages/login/login';
 import { ProfilePage } from './auth/pages/profile/profile';
+import { servicesRoutes } from './features/services/services.routes';
 
 export const routes: Routes = [
     {
@@ -39,8 +40,8 @@ export const routes: Routes = [
             },
             {
                 path: 'services',
-                component: App,
-                data: { title: 'Servicios' }
+                data: { title: 'Servicios' },
+                children: servicesRoutes
             },
             {
                 path: 'agencies',
