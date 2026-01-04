@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
 import { Router } from "@angular/router";
-import { CompanyService } from "../../../../auth/company.service";
+import { CompanyService } from "../../company.service";
 import { CompanyTable } from "../../../../lib/components/company-table/company-table";
 import { PaginatedResponse, PaginationParams } from "../../../../utils/paginated-response.interface";
 import { UserCompany } from "../../../../auth/models/user-company.interface";

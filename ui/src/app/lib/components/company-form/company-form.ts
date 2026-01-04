@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { CompanyService } from "../../../auth/company.service";
+import { CompanyService } from "../../../features/companies/company.service";
 import { CreateCompanyRequest } from "../../../auth/models/create-company.interface";
 import { UserRole } from "../../../auth/models/role.enum";
 import { COUNTRIES } from "../../../shared/constants/countries.constant";

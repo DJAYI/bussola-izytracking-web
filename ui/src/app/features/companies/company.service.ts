@@ -1,13 +1,13 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Observable, switchMap } from "rxjs";
-import { environment } from "../../environments/environment.development";
-import { ApiResponse } from "../utils/api-response.interface";
-import { User } from "./models/user.interface";
-import { UserCompany } from "./models/user-company.interface";
-import { PaginatedResponse, PaginationParams } from "../utils/paginated-response.interface";
-import { CreateCompanyRequest } from "./models/create-company.interface";
-import { getEndpointForRole, UserRole } from "./models/role.enum";
+import { environment } from "../../../environments/environment.development";
+import { ApiResponse } from "../../utils/api-response.interface";
+import { User } from "../../auth/models/user.interface";
+import { UserCompany } from "../../auth/models/user-company.interface";
+import { PaginatedResponse, PaginationParams } from "../../utils/paginated-response.interface";
+import { CreateCompanyRequest } from "../../auth/models/create-company.interface";
+import { getEndpointForRole, UserRole } from "../../auth/models/role.enum";
 
 export interface UpdateCompanyPayload {
     addressDetails: {

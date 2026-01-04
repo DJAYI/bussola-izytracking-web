@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from "@angular/core";
 import { form } from "@angular/forms/signals";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
-import { CompanyService, UpdateCompanyPayload } from "../../../../auth/company.service";
+import { CompanyService, UpdateCompanyPayload } from "../../company.service";
 import { UserCompany } from "../../../../auth/models/user-company.interface";
 import { UserRole } from "../../../../auth/models/role.enum";
 import { getDocumentTypeLabel } from "../../../../shared/constants/document-types.constant";
@@ -28,7 +28,7 @@ import {
             <div class="max-w-7xl mx-auto w-full">
                 <div class="mb-8 flex items-center justify-between">
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-900">Modificar Cliente</h3>
+                        <h3 class="text-2xl font-bold text-gray-900">Modificar Agencia</h3>
                         <p class="text-gray-500 mt-1">Edite la información de contacto y dirección de la compañía.</p>
                     </div>
                     @if (isEditing()) {

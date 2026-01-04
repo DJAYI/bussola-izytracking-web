@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } 
 import { form } from "@angular/forms/signals";
 import { User } from "../../models/user.interface";
 import { UserCompany } from "../../models/user-company.interface";
-import { CompanyService, UpdateCompanyPayload } from "../../company.service";
+import { CompanyService, UpdateCompanyPayload } from "../../../features/companies/company.service";
 import { UserRole } from "../../models/role.enum";
 import { UserStatus } from "../../models/user-status.enum";
 import { getDocumentTypeLabel } from "../../../shared/constants/document-types.constant";
