@@ -28,7 +28,7 @@ interface SidebarLink {
 
             <!-- Navigation -->
             <nav class="flex-1 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500 scrollbar-track-gray-800/50">
-                <ul class="space-y-1 px-3">
+                <ul class="space-y-2 px-3">
                     
 
                     @for (link of links; track $index) {
@@ -60,7 +60,7 @@ export class SidebarDashboard {
         this.authService.getCurrentSession().subscribe({
             next: (res) => {
                 // TODO: Filter links based on user role
-                this.links = this.links.filter(link => link.roles.includes(res.data.role));
+                this.links = this.links.filter(link => link.roles.includes(res.data.role) ?? false);
             },
             error: (error) => {
                 console.error('Failed to filter sidebar links based on user role', error);
