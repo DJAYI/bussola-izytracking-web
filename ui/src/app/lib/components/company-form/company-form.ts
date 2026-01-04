@@ -5,10 +5,10 @@ import { CompanyService } from "../../../auth/company.service";
 import { CreateCompanyRequest } from "../../../auth/models/create-company.interface";
 
 const DOCUMENT_TYPES = [
-    { value: 'NIT', label: 'NIT' },
-    { value: 'CC', label: 'Cédula de Ciudadanía' },
-    { value: 'CE', label: 'Cédula de Extranjería' },
-    { value: 'RUT', label: 'RUT' }
+    { value: 'NIT', label: 'NIT', personType: 'JURIDICAL' },
+    { value: 'CC', label: 'Cédula de Ciudadanía', personType: 'NATURAL' },
+    { value: 'CE', label: 'Cédula de Extranjería', personType: 'NATURAL' },
+    { value: 'RUT', label: 'RUT', personType: 'JURIDICAL' }
 ];
 
 const PERSON_TYPES = [
@@ -117,6 +117,7 @@ const COUNTRIES = [
                             </label>
                             <select 
                                 id="personType" 
+                                (change)="onPersonTypeSelected()"
                                 formControlName="personType"
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-white"
                             >
@@ -135,10 +136,14 @@ const COUNTRIES = [
                                 formControlName="documentType"
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors bg-white"
                             >
-                                <option value="" disabled>Seleccione...</option>
+                            @if (form.get('legalDocumentationDetails.personType')?.value == null) {
+                                <option disabled>Seleccione un tipo de persona primero</option>
+                            } @else {
+                                    <option value="" disabled>Seleccione...</option>
                                 @for (type of documentTypes; track type.value) {
                                     <option [value]="type.value">{{ type.label }}</option>
                                 }
+                            }
                             </select>
                         </div>
                         <div>
@@ -367,5 +372,9 @@ export class CompanyForm {
 
     onCancel(): void {
         this.router.navigate(this.cancelRoute());
+    }
+
+    onPersonTypeSelected(): void {
+        this.documentTypes = DOCUMENT_TYPES.filter(dt => dt.personType === this.form.get('legalDocumentationDetails.personType')?.value);
     }
 }
