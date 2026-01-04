@@ -1,11 +1,12 @@
 import { Component, inject, input, OnInit } from "@angular/core";
 import { SidebarNavItem } from "./nav-item/sidebar-nav-item";
 import { AuthService } from "../../../auth/auth,service";
+import { UserRole } from "../../../auth/models/role.enum";
 
-type SidebarLink = {
+interface SidebarLink {
     link: string;
     name: string;
-    role: string[];
+    roles: UserRole[];
 }
 
 @Component({
@@ -39,24 +40,24 @@ type SidebarLink = {
     imports: [SidebarNavItem],
 })
 export class SidebarDashboard {
-    authService = inject(AuthService);
+    private readonly authService = inject(AuthService);
 
     links: SidebarLink[] = [
-        { link: 'agencies', name: 'Agencias', role: ['ADMIN'] },
-        { link: 'transport-providers', name: 'Proveedores de Transporte', role: ['ADMIN'] },
-        { link: 'services', name: 'Servicios', role: ['AGENCY', 'TRANSPORT_PROVIDER'] },
-        { link: 'vehicles', name: 'Vehículos', role: ['TRANSPORT_PROVIDER'] },
-        { link: 'drivers', name: 'Conductores', role: ['TRANSPORT_PROVIDER'] },
-        { link: 'tariff', name: 'Tarifario', role: ['TRANSPORT_PROVIDER'] },
-        { link: 'history', name: 'Historial', role: ['AGENCY', 'TRANSPORT_PROVIDER'] },
-        { link: 'invoices', name: 'Facturas', role: ['AGENCY', 'TRANSPORT_PROVIDER'] },
-    ]
+        { link: 'agencies', name: 'Agencias', roles: [UserRole.ADMIN] },
+        { link: 'transport-providers', name: 'Proveedores de Transporte', roles: [UserRole.ADMIN] },
+        { link: 'services', name: 'Servicios', roles: [UserRole.AGENCY, UserRole.TRANSPORT_PROVIDER] },
+        { link: 'vehicles', name: 'Vehículos', roles: [UserRole.TRANSPORT_PROVIDER] },
+        { link: 'drivers', name: 'Conductores', roles: [UserRole.TRANSPORT_PROVIDER] },
+        { link: 'tariff', name: 'Tarifario', roles: [UserRole.TRANSPORT_PROVIDER] },
+        { link: 'history', name: 'Historial', roles: [UserRole.AGENCY, UserRole.TRANSPORT_PROVIDER] },
+        { link: 'invoices', name: 'Facturas', roles: [UserRole.AGENCY, UserRole.TRANSPORT_PROVIDER] },
+    ];
     open = input.required<boolean>();
 
     constructor() {
         this.authService.getCurrentSession().subscribe({
             next: (res) => {
-                this.links = this.links.filter(link => link.role.includes(res.data.role));
+                this.links = this.links.filter(link => link.roles.includes(res.data.role));
             },
             error: (error) => {
                 console.error('Failed to filter sidebar links based on user role', error);

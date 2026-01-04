@@ -1,3 +1,5 @@
+import { UserRole } from './role.enum';
+
 export interface LoginCredentials {
     email: string;
     password: string;
@@ -6,6 +8,6 @@ export interface LoginCredentials {
 export interface LoginResponse {
     email: string;
     displayName: string;
-    role: 'ADMIN' | 'AGENCY' | 'TRANSPORT_PROVIDER';
+    role: UserRole;
     accessToken: string;
 }

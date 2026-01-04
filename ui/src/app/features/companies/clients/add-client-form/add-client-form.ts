@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { CompanyForm } from "../../../../lib/components/company-form/company-form";
+import { UserRole } from "../../../../auth/models/role.enum";
 
 @Component({
     selector: "app-add-client-form",
@@ -7,11 +8,13 @@ import { CompanyForm } from "../../../../lib/components/company-form/company-for
         <app-company-form
             title="Nueva Agencia"
             description="Complete el formulario para registrar una nueva agencia en el sistema."
-            companyType="AGENCY"
+            [companyType]="companyType"
             submitButtonText="Crear Agencia"
             [cancelRoute]="['/admin', 'agencies']"
         />
     `,
     imports: [CompanyForm],
 })
-export class AddClientFormComponent { }
+export class AddClientFormComponent {
+    readonly companyType = UserRole.AGENCY;
+}

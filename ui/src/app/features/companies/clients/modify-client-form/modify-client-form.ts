@@ -3,18 +3,9 @@ import { form, Field } from "@angular/forms/signals";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { CompanyService, UpdateCompanyPayload } from "../../../../auth/company.service";
 import { UserCompany } from "../../../../auth/models/user-company.interface";
-
-const DOCUMENT_TYPE_LABELS: Record<string, string> = {
-    'NIT': 'NIT',
-    'CC': 'Cédula de Ciudadanía',
-    'CE': 'Cédula de Extranjería',
-    'RUT': 'RUT'
-};
-
-const PERSON_TYPE_LABELS: Record<string, string> = {
-    'NATURAL': 'Natural',
-    'JURIDICAL': 'Jurídica'
-};
+import { UserRole } from "../../../../auth/models/role.enum";
+import { getDocumentTypeLabel } from "../../../../shared/constants/document-types.constant";
+import { getPersonTypeLabel } from "../../../../shared/constants/person-types.constant";
 
 interface EditFormModel {
     street: string;
@@ -293,12 +284,12 @@ export class ModifyClientFormComponent implements OnInit {
 
     protected readonly personTypeLabel = computed(() => {
         const companyData = this.company();
-        return PERSON_TYPE_LABELS[companyData?.legalDocumentation?.personType ?? ''] ?? '';
+        return getPersonTypeLabel(companyData?.legalDocumentation?.personType);
     });
 
     protected readonly documentTypeLabel = computed(() => {
         const companyData = this.company();
-        return DOCUMENT_TYPE_LABELS[companyData?.legalDocumentation?.documentType ?? ''] ?? '';
+        return getDocumentTypeLabel(companyData?.legalDocumentation?.documentType);
     });
 
     ngOnInit(): void {
@@ -311,7 +302,7 @@ export class ModifyClientFormComponent implements OnInit {
     }
 
     private loadCompanyDetails(): void {
-        this.companyService.getCompanyById('AGENCY', this.companyId).subscribe({
+        this.companyService.getCompanyById(UserRole.AGENCY, this.companyId).subscribe({
             next: ({ data: companyData }) => {
                 this.company.set(companyData);
                 this.isLoading.set(false);
@@ -360,7 +351,7 @@ export class ModifyClientFormComponent implements OnInit {
         };
 
         this.isSaving.set(true);
-        this.companyService.updateCompanyById('AGENCY', this.companyId, payload).subscribe({
+        this.companyService.updateCompanyById(UserRole.AGENCY, this.companyId, payload).subscribe({
             next: ({ data: updatedCompany }) => {
                 this.company.set(updatedCompany);
                 this.isEditing.set(false);

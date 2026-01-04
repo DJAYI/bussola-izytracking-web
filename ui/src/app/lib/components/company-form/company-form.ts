@@ -3,29 +3,10 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { CompanyService } from "../../../auth/company.service";
 import { CreateCompanyRequest } from "../../../auth/models/create-company.interface";
-
-const DOCUMENT_TYPES = [
-    { value: 'NIT', label: 'NIT', personType: 'JURIDICAL' },
-    { value: 'CC', label: 'Cédula de Ciudadanía', personType: 'NATURAL' },
-    { value: 'CE', label: 'Cédula de Extranjería', personType: 'NATURAL' },
-    { value: 'RUT', label: 'RUT', personType: 'JURIDICAL' }
-];
-
-const PERSON_TYPES = [
-    { value: 'NATURAL', label: 'Persona Natural' },
-    { value: 'JURIDICAL', label: 'Persona Jurídica' }
-];
-
-const COUNTRIES = [
-    { value: 'COL', label: 'Colombia' },
-    { value: 'USA', label: 'Estados Unidos' },
-    { value: 'MEX', label: 'México' },
-    { value: 'ARG', label: 'Argentina' },
-    { value: 'BRA', label: 'Brasil' },
-    { value: 'CHL', label: 'Chile' },
-    { value: 'PER', label: 'Perú' },
-    { value: 'ECU', label: 'Ecuador' }
-];
+import { UserRole } from "../../../auth/models/role.enum";
+import { COUNTRIES } from "../../../shared/constants/countries.constant";
+import { DOCUMENT_TYPES, getDocumentTypesByPersonType, DocumentTypeOption } from "../../../shared/constants/document-types.constant";
+import { PERSON_TYPES, PersonType } from "../../../shared/constants/person-types.constant";
 
 @Component({
     selector: "app-company-form",
@@ -310,7 +291,7 @@ export class CompanyForm {
     // Inputs
     title = input.required<string>();
     description = input.required<string>();
-    companyType = input.required<'AGENCY' | 'TRANSPORT_PROVIDER'>();
+    companyType = input.required<UserRole>();
     submitButtonText = input<string>('Crear Empresa');
     cancelRoute = input.required<string[]>();
 
@@ -321,7 +302,7 @@ export class CompanyForm {
     isSubmitting = signal(false);
 
     // Constants
-    documentTypes = DOCUMENT_TYPES;
+    documentTypes: DocumentTypeOption[] = DOCUMENT_TYPES;
     personTypes = PERSON_TYPES;
     countries = COUNTRIES;
 
@@ -375,6 +356,7 @@ export class CompanyForm {
     }
 
     onPersonTypeSelected(): void {
-        this.documentTypes = DOCUMENT_TYPES.filter(dt => dt.personType === this.form.get('legalDocumentationDetails.personType')?.value);
+        const personType = this.form.get('legalDocumentationDetails.personType')?.value as PersonType;
+        this.documentTypes = getDocumentTypesByPersonType(personType);
     }
 }

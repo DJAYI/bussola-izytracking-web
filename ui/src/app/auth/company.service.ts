@@ -7,6 +7,7 @@ import { User } from "./models/user.interface";
 import { UserCompany } from "./models/user-company.interface";
 import { PaginatedResponse, PaginationParams } from "../utils/paginated-response.interface";
 import { CreateCompanyRequest } from "./models/create-company.interface";
+import { getEndpointForRole, UserRole } from "./models/role.enum";
 
 export interface UpdateCompanyPayload {
     addressDetails: {
@@ -33,13 +34,13 @@ export class CompanyService {
         return this.httpClient.get<ApiResponse<User>>(`${this.apiUrl}auth/me`);
     }
 
-    getCompanyDetails(role: string): Observable<ApiResponse<UserCompany>> {
-        const endpoint = role === 'AGENCY' ? 'agencies' : 'transport-providers';
+    getCompanyDetails(role: UserRole): Observable<ApiResponse<UserCompany>> {
+        const endpoint = getEndpointForRole(role);
         return this.httpClient.get<ApiResponse<UserCompany>>(`${this.apiUrl}${endpoint}/me`);
     }
 
-    updateCompanyDetails(role: string, payload: UpdateCompanyPayload): Observable<ApiResponse<UserCompany>> {
-        const endpoint = role === 'AGENCY' ? 'agencies' : 'transport-providers';
+    updateCompanyDetails(role: UserRole, payload: UpdateCompanyPayload): Observable<ApiResponse<UserCompany>> {
+        const endpoint = getEndpointForRole(role);
         return this.httpClient.put<ApiResponse<UserCompany>>(`${this.apiUrl}${endpoint}/me`, payload);
     }
 
@@ -53,8 +54,8 @@ export class CompanyService {
         );
     }
 
-    getListOfCompanies(companyType: string, params: PaginationParams): Observable<ApiResponse<PaginatedResponse<UserCompany>>> {
-        const endpoint = companyType === 'AGENCY' ? 'agencies' : 'transport-providers';
+    getListOfCompanies(companyType: UserRole, params: PaginationParams): Observable<ApiResponse<PaginatedResponse<UserCompany>>> {
+        const endpoint = getEndpointForRole(companyType);
 
         return this.httpClient.get<ApiResponse<PaginatedResponse<UserCompany>>>(`${this.apiUrl}${endpoint}`, {
             params: {
@@ -65,18 +66,18 @@ export class CompanyService {
         });
     }
 
-    createCompany(companyType: string, payload: CreateCompanyRequest): Observable<ApiResponse<UserCompany>> {
-        const endpoint = companyType === 'AGENCY' ? 'agencies' : 'transport-providers';
+    createCompany(companyType: UserRole, payload: CreateCompanyRequest): Observable<ApiResponse<UserCompany>> {
+        const endpoint = getEndpointForRole(companyType);
         return this.httpClient.post<ApiResponse<UserCompany>>(`${this.apiUrl}${endpoint}`, payload);
     }
 
-    getCompanyById(companyType: string, id: string): Observable<ApiResponse<UserCompany>> {
-        const endpoint = companyType === 'AGENCY' ? 'agencies' : 'transport-providers';
+    getCompanyById(companyType: UserRole, id: string): Observable<ApiResponse<UserCompany>> {
+        const endpoint = getEndpointForRole(companyType);
         return this.httpClient.get<ApiResponse<UserCompany>>(`${this.apiUrl}${endpoint}/${id}`);
     }
 
-    updateCompanyById(companyType: string, id: string, payload: UpdateCompanyPayload): Observable<ApiResponse<UserCompany>> {
-        const endpoint = companyType === 'AGENCY' ? 'agencies' : 'transport-providers';
+    updateCompanyById(companyType: UserRole, id: string, payload: UpdateCompanyPayload): Observable<ApiResponse<UserCompany>> {
+        const endpoint = getEndpointForRole(companyType);
         return this.httpClient.put<ApiResponse<UserCompany>>(`${this.apiUrl}${endpoint}/${id}`, payload);
     }
 }

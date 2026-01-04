@@ -3,18 +3,10 @@ import { form, Field } from "@angular/forms/signals";
 import { User } from "../../models/user.interface";
 import { UserCompany } from "../../models/user-company.interface";
 import { CompanyService, UpdateCompanyPayload } from "../../company.service";
-
-const DOCUMENT_TYPE_LABELS: Record<string, string> = {
-    'NIT': 'NIT',
-    'CC': 'Cédula de Ciudadanía',
-    'CE': 'Cédula de Extranjería',
-    'RUT': 'RUT'
-};
-
-const PERSON_TYPE_LABELS: Record<string, string> = {
-    'NATURAL': 'Natural',
-    'JURIDICAL': 'Jurídica'
-};
+import { UserRole } from "../../models/role.enum";
+import { UserStatus } from "../../models/user-status.enum";
+import { getDocumentTypeLabel } from "../../../shared/constants/document-types.constant";
+import { getPersonTypeLabel } from "../../../shared/constants/person-types.constant";
 
 interface EditFormModel {
     street: string;
@@ -310,23 +302,23 @@ export class ProfilePage implements OnInit {
 
         if (!user) return null;
 
-        const isAdmin = user.role === 'ADMIN';
+        const isAdmin = user.role === UserRole.ADMIN;
 
         return {
             avatarUrl: undefined as string | undefined,
             fullName: user.displayName,
             email: user.email,
-            role: user.role === 'ADMIN' ? 'Administrador' : (user.role === 'AGENCY' ? 'Agencia' : 'Proveedor de Transporte'),
+            role: user.role === UserRole.ADMIN ? 'Administrador' : (user.role === UserRole.AGENCY ? 'Agencia' : 'Proveedor de Transporte'),
             isAdmin,
-            isActive: user.status === 'ACTIVE',
-            isVerified: user.status === 'ACTIVE',
+            isActive: user.status === UserStatus.ACTIVE,
+            isVerified: user.status === UserStatus.ACTIVE,
             memberSince: new Date(user.createdAt).toLocaleDateString('es-CO', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
             }),
-            personType: PERSON_TYPE_LABELS[company?.legalDocumentation?.personType ?? ''] ?? '',
-            documentType: DOCUMENT_TYPE_LABELS[company?.legalDocumentation?.documentType ?? ''] ?? '',
+            personType: getPersonTypeLabel(company?.legalDocumentation?.personType),
+            documentType: getDocumentTypeLabel(company?.legalDocumentation?.documentType),
             documentNumber: company?.legalDocumentation?.documentNumber ?? '',
             phone: company?.contact?.phoneNumber ?? company?.contact?.mobileNumber ?? '',
             address: company?.address?.street ?? '',
@@ -353,7 +345,7 @@ export class ProfilePage implements OnInit {
         });
     }
 
-    private loadCompanyDetails(role: string): void {
+    private loadCompanyDetails(role: UserRole): void {
         this.companyService.getCompanyDetails(role).subscribe({
             next: ({ data: company }) => this.company.set(company),
             error: (err) => console.error('Error loading company details:', err)
